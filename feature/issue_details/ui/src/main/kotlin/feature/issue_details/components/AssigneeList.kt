@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import common.ui.TextWithLessOpacity
-import common.ui.UserShortInfo
+import common.ui.UserShortInfoView
 
 /**
  * - Show the list of assignee for a particular issue
@@ -16,12 +16,17 @@ import common.ui.UserShortInfo
 @Composable
 internal fun AssigneeListView(
     modifier: Modifier = Modifier,
-    assignees: List<AssigneeViewData>
+    assignees: List<AssigneeViewData>,
+    onUserProfileRequest: (String) -> Unit,
 ) {
     if (assignees.isEmpty())
         TextWithLessOpacity(text = "No one assigned")
     else
-        _AssigneeListView(modifier = modifier, assignees = assignees)
+        _AssigneeListView(
+            modifier = modifier,
+            assignees = assignees,
+            onUserProfileRequest=onUserProfileRequest
+        )
 
 }
 
@@ -30,13 +35,15 @@ internal fun AssigneeListView(
 @Composable
 private fun _AssigneeListView(
     modifier: Modifier = Modifier,
-    assignees: List<AssigneeViewData>
+    assignees: List<AssigneeViewData>,
+    onUserProfileRequest: (String) -> Unit,
 ) {
     FlowRow(modifier = modifier) {
         assignees.forEach { assignee ->
-            UserShortInfo(
+            UserShortInfoView(
                 username = assignee.username,
-                avatarLink = assignee.avatarLink
+                avatarLink = assignee.avatarLink,
+                onUsernameOrImageClick = { onUserProfileRequest(assignee.username) }
             )
         }
     }

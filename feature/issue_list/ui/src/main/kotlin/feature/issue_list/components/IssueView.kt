@@ -1,99 +1,53 @@
-package feature.issue_list
+@file:Suppress("UnUsed", "ComposableNaming", "FunctionName")
 
+package feature.issue_list.components
 import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import common.ui.LabelListView
 import common.ui.LabelViewData
+import common.ui.UserShortInfoView
 import issue_list.di_container.DIFactory
+import issue_list.domain.model.IssueModel
+import issue_list.domain.model.LabelModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-val exampleIssue = IssueInfo(
-    id = "12345",
-    title = "Unexpected behavior in jjjkjjjjkjjkk",
-    createdTime = "2023-09-10",
-    userAvatarLink = "https://avatars.githubusercontent.com/u/91824168?v=4",
-    creatorName = "johndoe"
-)
-
-
+/**
+ * - Show list of issue
+ * - Should call when issue list is ready because it does not handle data fetching or loading ,
+ * so it does not have any progress bar
+ */
 @Composable
-fun IssuesListRoute(
+internal fun IssuesList(
     modifier: Modifier = Modifier,
+    issues: List<IssueViewData>,
     onDetailsRequest: (id: String) -> Unit,
-    onCreatorInfoRequest: (userName: String) -> Unit,
-) {
-    var issuses by remember { mutableStateOf<List<IssueInfo>?>(null) }
-    LaunchedEffect(Unit) {
-        val response = DIFactory.createIssueListRepository().fetchIssues()
-        if (response.isSuccess) {
-            issuses = response.getOrNull()?.let { issueList ->
-                issueList
-                    .map { issue ->
-                        exampleIssue.copy(
-                            title = issue.title,
-                            createdTime = issue.createdTime,
-                            userAvatarLink = issue.userAvatarLink,
-                            creatorName = issue.creatorName,
-                            labels = issue.labels.map { model ->
-                                Label(
-                                    name = model.name,
-                                    hexCode = model.hexCode,
-                                    description = model.description
-                                )
-                            }
-                        )
-                    }
-            }
-        }
-    }
-
-    issuses?.let {
-        IssuesList(
-            modifier = Modifier,
-            issues = it,
-            onDetailsRequest = onDetailsRequest,
-            onCreatorInfoRequest = onCreatorInfoRequest,
-        )
-    }
-}
-
-
-@Composable
-fun IssuesList(
-    modifier: Modifier = Modifier,
-    issues: List<IssueInfo>,
-    onDetailsRequest: (id: String) -> Unit,
-    onCreatorInfoRequest: (userName: String) -> Unit,
-) {
+    onUserProfileRequest: (userName: String) -> Unit,
+    ) {
     LazyColumn(modifier) {
         itemsIndexed(issues) { index, issue ->
             val isNotLastItem = (index != issues.lastIndex)
@@ -101,31 +55,93 @@ fun IssuesList(
                 modifier = Modifier.padding(8.dp),
                 info = issue,
                 onDetailsRequest = { onDetailsRequest(issue.id) },
-                onCreatorInfoRequest = { onCreatorInfoRequest(issue.creatorName) }
+                onUserProfileRequest = { onUserProfileRequest(issue.creatorName) }
             )
             if (isNotLastItem) {
                 HorizontalDivider()
             }
 
-
         }
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+
+class IssueListViewController {
+    private val _issues = MutableStateFlow<List<IssueViewData>?>(null)
+    internal val issues = _issues.asStateFlow()
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
+    /**either error or success message,can be shown using snackBar*/
+    private val _screenMessage = MutableStateFlow<String?>(null)
+
+    /**Should be used by Screen/Route component that is not making internal*/
+    val screenMessage = _screenMessage.asStateFlow()
+
+
+    internal suspend fun fetchIssues() {
+        val response = DIFactory.createIssueListRepository().fetchIssues()
+        if (response.isSuccess) {
+            updateState(response)
+        } else {
+            _updateScreenMessage("Failed to fetch details:${response.exceptionOrNull()}")
+        }
+    }
+
+
+    /** taking in wrapping in Result so that exception can handle by this method*/
+    private fun updateState(result: Result<List<IssueModel>>) {
+        try {
+            _issues.update {
+                result.getOrThrow().map(::toIssueViewData)
+            }
+
+        } catch (e: Exception) {
+            _updateScreenMessage("Failed to fetch details:$e")
+        }
+    }
+
+
+    //TODO:Helper method section-------------
+    private fun toLabelViewData(model: LabelModel) = LabelViewData(
+        name = model.name,
+        hexCode = model.hexCode,
+        description = model.description
+    )
+
+    private fun toIssueViewData(model: IssueModel) = IssueViewData(
+        title = model.title,
+        id = model.id,
+        creatorName = model.creatorName,
+        creatorAvatarLink = model.userAvatarLink,
+        createdTime = model.createdTime,
+        labels =model.labels.map(::toLabelViewData)
+    )
+
+    private fun _updateScreenMessage(msg: String?) {
+        CoroutineScope(Dispatchers.Default).launch {
+            _screenMessage.update { msg }
+            delay(3000)
+            _screenMessage.update { null }//clear message after 3 sec
+        }
+
+    }
+}
+
+
 @SuppressLint("ComposableNaming")
 @Composable
-fun _IssueView(
+private fun _IssueView(
     modifier: Modifier = Modifier,
-    info: IssueInfo,
+    info: IssueViewData,
     onDetailsRequest: () -> Unit,
-    onCreatorInfoRequest: () -> Unit,
+    onUserProfileRequest: () -> Unit,
 ) {
     val labelColor = MaterialTheme.typography.labelMedium.color
     val labelStyle = MaterialTheme.typography.labelMedium.copy(
         color = labelColor.copy(alpha = 0.6f)
     )
-    _IssueComponentSlot(
+    _IssueViewLayout(
         modifier = modifier,
         title = {
             Text(
@@ -141,28 +157,16 @@ fun _IssueView(
                 style = labelStyle
             )
         },
-        userAvatar = {
-            AsyncImage(
-                model = info.userAvatarLink,
-                contentDescription = "user image",
-                modifier = Modifier
-                    .size(30.dp)
-                    .clip(CircleShape)
-                    .clickable {
-                        onCreatorInfoRequest()
-                    }
-            )
-        },
-        userName = {
-            Text(
-                modifier = it.clickable { onCreatorInfoRequest() },
-                text = info.creatorName,
-                style = labelStyle
+        creatorInfo = {
+            UserShortInfoView(
+                username = info.creatorName,
+                avatarLink = info.creatorAvatarLink,
+                onUsernameOrImageClick = onUserProfileRequest
             )
         },
         labels = if (info.labels.isNotEmpty()) {
             @Composable {
-                LabelListView(
+                LabelListView(//from common.ui module
                     labels = info.labels.map {
                         LabelViewData(
                             name = it.name,
@@ -187,20 +191,15 @@ private fun _extractDateFromTimestamp(timestamp: String): String {
 /**
  * @param creatorName is github user name of the issue creator
  */
-data class IssueInfo(
+data class IssueViewData(
     val id: String,
     val title: String,
     val createdTime: String,
-    val userAvatarLink: String,
+    val creatorAvatarLink: String,
     val creatorName: String,
-    val labels: List<Label> = emptyList(),
+    val labels: List<LabelViewData>
 )
 
-data class Label(
-    val name: String,
-    val hexCode: String,
-    val description: String?,
-)
 
 
 /**
@@ -208,19 +207,16 @@ data class Label(
  * component, this ensure single responsibility
  * - Following Strategy Design pattern so that using slot
  * @param title is the title  of the issue
- * @param userAvatar id of the issue
  * @param timestamp when the issue opened
  * @param labels label list may be empty that is why making nullable to avoid unnecessary margin/padding
  */
-@OptIn(ExperimentalLayoutApi::class)
 @SuppressLint("ComposableNaming")
 @Composable
-private fun _IssueComponentSlot(
+private fun _IssueViewLayout(
     modifier: Modifier = Modifier,
     title: @Composable (Modifier) -> Unit,
     timestamp: @Composable (Modifier) -> Unit,
-    userAvatar: @Composable (Modifier) -> Unit,
-    userName: @Composable (Modifier) -> Unit,
+    creatorInfo: @Composable (Modifier) -> Unit,
     labels: (@Composable (Modifier) -> Unit)?,
 ) {
     Column(modifier = modifier) {
@@ -238,15 +234,7 @@ private fun _IssueComponentSlot(
             // Timestamp stays at the end
             timestamp(Modifier.wrapContentWidth(Alignment.End))
         }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            userAvatar(Modifier)
-            Spacer(Modifier.width(8.dp))
-            userName(Modifier)
-        }
+        creatorInfo(Modifier)
         if (labels != null) {
             Spacer(Modifier.height(4.dp))
             labels(Modifier)

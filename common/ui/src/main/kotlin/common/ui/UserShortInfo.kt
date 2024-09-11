@@ -15,8 +15,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 
+/**
+ * @param onUsernameOrImageClick should show user profile on this event
+ */
 @Composable
-fun UserShortInfo(modifier: Modifier = Modifier, username: String, avatarLink: String) {
+fun UserShortInfoView(
+    modifier: Modifier = Modifier,
+    username: String,
+    avatarLink: String,
+    onUsernameOrImageClick:()->Unit,
+) {
     val labelColor = MaterialTheme.typography.labelMedium.color
     val labelStyle = MaterialTheme.typography.labelMedium.copy(
         color = labelColor.copy(alpha = 0.6f)
@@ -30,12 +38,12 @@ fun UserShortInfo(modifier: Modifier = Modifier, username: String, avatarLink: S
                 .size(30.dp)
                 .clip(CircleShape)
                 .clickable {
-
+                    onUsernameOrImageClick()
                 }
         )
         Spacer(Modifier.width(4.dp))
         Text(
-            modifier = Modifier,
+            modifier = Modifier.clickable { onUsernameOrImageClick() },
             text = username,
             style = labelStyle
         )

@@ -18,7 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import common.ui.TextWithLessOpacity
-import common.ui.UserShortInfo
+import common.ui.UserShortInfoView
 import dev.jeziellago.compose.markdowntext.MarkdownText
 
 /**
@@ -29,6 +29,7 @@ import dev.jeziellago.compose.markdowntext.MarkdownText
 internal fun CommentListView(
     modifier: Modifier = Modifier,
     comments: List<CommentViewData> = emptyList(),
+    onUserProfileRequest:(String)->Unit,
 ) {
 //    var comments by remember { mutableStateOf<List<CommentViewData>?>(null) }
 //    LaunchedEffect(Unit) {
@@ -49,7 +50,11 @@ internal fun CommentListView(
     if (comments.isEmpty())
         TextWithLessOpacity(modifier = modifier, text = "No comment found")
     else
-        _CommentListView(modifier = modifier, comments = comments)
+        _CommentListView(
+            modifier = modifier,
+            comments = comments,
+            onUserProfileRequest = onUserProfileRequest
+        )
 
 
 }
@@ -59,6 +64,7 @@ internal fun CommentListView(
 private fun _CommentListView(
     modifier: Modifier = Modifier,
     comments: List<CommentViewData>,
+    onUserProfileRequest:(String)->Unit,
 ) {
     /**Comment list is not large enough so it is okay to not use lazy list*/
     Column(modifier = modifier) {
@@ -70,7 +76,8 @@ private fun _CommentListView(
                         border = BorderStroke(width = 1.dp, color = Color.Black),
                         shape = RoundedCornerShape(8.dp)
                     ),
-                data = comment
+                data = comment,
+                onUserProfileRequest = { onUserProfileRequest(comment.creatorUsername) }
             )
             Spacer(Modifier.height(16.dp))
         }
@@ -85,6 +92,7 @@ private fun _CommentListView(
 private fun _CommentView(
     modifier: Modifier = Modifier,
     data: CommentViewData,
+    onUserProfileRequest:()->Unit,
 ) {
     Surface(
         modifier = modifier//margin
@@ -94,7 +102,8 @@ private fun _CommentView(
             _Header(
                 modifier = Modifier.fillMaxWidth(),
                 creatorUsername = data.creatorUsername,
-                creatorAvatarLink = data.creatorAvatarLink
+                creatorAvatarLink = data.creatorAvatarLink,
+                onUserProfileRequest = onUserProfileRequest
             )
             Spacer(Modifier.height(8.dp))
             MarkdownText(
@@ -112,7 +121,8 @@ private fun _CommentView(
 private fun _Header(
     modifier: Modifier = Modifier,
     creatorUsername: String,
-    creatorAvatarLink: String
+    creatorAvatarLink: String,
+    onUserProfileRequest:()->Unit,
 ) {
     Surface(modifier = modifier, tonalElevation = 8.dp) {
         Row(
@@ -120,10 +130,11 @@ private fun _Header(
                 .padding(8.dp)
                 .fillMaxWidth()
         ) {
-            UserShortInfo(//From common:ui module
+            UserShortInfoView(//From common:ui module
                 username = creatorUsername,
                 avatarLink = creatorAvatarLink,
-                modifier = Modifier
+                modifier = Modifier,
+                onUsernameOrImageClick = onUserProfileRequest
             )
         }
     }

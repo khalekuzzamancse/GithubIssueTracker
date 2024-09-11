@@ -1,4 +1,4 @@
-@file:Suppress("UnUsed", "ComposableNaming")
+@file:Suppress("UnUsed", "ComposableNaming", "FunctionName")
 
 package feature.issue_details.routes
 
@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import common.ui.HorizontalGap_8Dp
 import common.ui.LabelViewData
 import common.ui.TextWithLessOpacity
-import common.ui.UserShortInfo
+import common.ui.UserShortInfoView
 import common.ui.VerticalGap_32Dp
 import common.ui.VerticalGap_8Dp
 import feature.issue_details.components.AssigneeListView
@@ -46,16 +46,99 @@ import issue_details.domain.model.CommentModel
 import issue_details.domain.model.IssueDetailsModel
 import issue_details.domain.model.LabelModel
 import issue_details.domain.model.UserShortInfoModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 @Composable
-fun IssueDetailsRoute(modifier: Modifier = Modifier) {
+fun IssueDetailsRoute(
+    modifier: Modifier = Modifier,
+    onUserProfileRequest: (username: String) -> Unit,
+) {
     val controller = remember { IssueDetailsController() }
-    IssueDetails(modifier = modifier, controller = controller)
+    IssueDetails(
+        modifier = modifier,
+        controller = controller,
+        onUserProfileRequest = onUserProfileRequest
+    )
+}
+
+/**
+ * - Represent the Issue details
+ * - Does not handle the Layout structure, use Delegation design pattern concept to delegation
+ * layout to other component
+ * - By default not scrollable,pass modifier with scrollable in order to scroll
+ */
+@Composable
+fun IssueDetails(
+    modifier: Modifier = Modifier,
+    controller: IssueDetailsController,
+    onUserProfileRequest: (username: String) -> Unit,
+) {
+    LaunchedEffect(Unit) {
+        controller.fetchDetails("")
+    }
+    controller.details.collectAsState().value?.let { details ->
+        _IssueDetailsLayout(
+            modifier = modifier,
+            title = {
+                Text(
+                    modifier = it,
+                    text = details.title,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            },
+            issueNumber = {
+                _IssueNumber(number = details.issueNum, modifier = it)
+            },
+            status = {
+                _IssueStatus(modifier = it, status = details.status)
+            },
+            creatorInfo = {
+                UserShortInfoView(//From common:ui module
+                    username = details.creatorName,
+                    avatarLink = details.creatorAvatarLink,
+                    modifier = it,
+                    onUsernameOrImageClick = { onUserProfileRequest(details.creatorName) }
+                )
+            },
+            labels = {
+                LabelList(
+                    modifier = it,
+                    labels = details.labels.map { label ->
+                        LabelViewData(
+                            name = label.name,
+                            hexCode = label.hexCode,
+                            description = label.description
+                        )
+                    }
+                )
+            },
+            assignees = {
+                AssigneeListView(
+                    modifier = it, assignees = details.assignees, onUserProfileRequest = onUserProfileRequest
+                )
+            },
+            description = {
+                Description(modifier = it, body = details.description)
+            },
+            comments = {
+                CommentListView(modifier = it, comments = details.comments, onUserProfileRequest = onUserProfileRequest)
+            }
+        )
+    }
+    if (controller.details.collectAsState().value == null) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(modifier = Modifier.size(64.dp))
+        }
+    }
+
+
 }
 
 /**
@@ -73,14 +156,16 @@ class IssueDetailsController {
 
     /**either error or success message,can be shown using snackBar*/
     private val _screenMessage = MutableStateFlow<String?>(null)
+
+    /**Should be used by Screen/Route component that is not making internal*/
     val screenMessage = _screenMessage.asStateFlow()
 
-    suspend fun fetchDetails(issueNumber: String) {
-        val response = DIFactory.createIssueDetailsRepository().fetchDetails("154741")
+    internal suspend fun fetchDetails(issueNumber: String) {
+        val response = DIFactory.createIssueDetailsRepository().fetchDetails(issueNumber)
         if (response.isSuccess) {
             updateState(response)
         } else {
-
+            _updateScreenMessage("Failed to fetch details:${response.exceptionOrNull()}")
         }
     }
 
@@ -102,6 +187,7 @@ class IssueDetailsController {
                 )
             }
         } catch (e: Exception) {
+            _updateScreenMessage("Failed to fetch details:$e")
         }
     }
 
@@ -126,81 +212,13 @@ class IssueDetailsController {
         body = model.body
     )
 
-    private suspend fun updateScreenMessage(msg: String?) {
-        _screenMessage.update { msg }
-        delay(3000)
-        _screenMessage.update { null }//clear message after 3 sec
-    }
-
-
-}
-
-/**
- * - Represent the Issue details
- * - Does not handle the Layout structure, use Delegation design pattern concept to delegation
- * layout to other component
- * - By default not scrollable,pass modifier with scrollable in order to scroll
- */
-@Composable
-fun IssueDetails(
-    modifier: Modifier = Modifier,
-    controller: IssueDetailsController,
-) {
-    LaunchedEffect(Unit) {
-        controller.fetchDetails("")
-    }
-    controller.details.collectAsState().value?.let { details ->
-        _IssueDetailsLayout(
-            modifier = modifier,
-            title = {
-                Text(
-                    modifier = it,
-                    text = details.title,
-                    style = MaterialTheme.typography.titleMedium
-                )
-            },
-            issueNumber = {
-                _IssueNumber(number = details.issueNum, modifier = it)
-            },
-            status = {
-                _IssueStatus(modifier = it, status = details.status)
-            },
-            creatorInfo = {
-                UserShortInfo(//From common:ui module
-                    username = details.creatorName,
-                    avatarLink = details.creatorAvatarLink,
-                    modifier = it
-                )
-            },
-            labels = {
-                LabelList(
-                    modifier = it,
-                    labels = details.labels.map { label ->
-                        LabelViewData(
-                            name = label.name,
-                            hexCode = label.hexCode,
-                            description = label.description
-                        )
-                    }
-                )
-            },
-            assignees = {
-                AssigneeListView(
-                    modifier = it, assignees = details.assignees
-                )
-            },
-            description = {
-                Description(modifier = it, body = details.description)
-            },
-            comments = {
-                CommentListView(modifier = it, comments = details.comments)
-            }
-        )
-    }
-    if (controller.details.collectAsState().value == null) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(modifier = Modifier.size(64.dp))
+    private fun _updateScreenMessage(msg: String?) {
+        CoroutineScope(Dispatchers.Default).launch {
+            _screenMessage.update { msg }
+            delay(3000)
+            _screenMessage.update { null }//clear message after 3 sec
         }
+
     }
 
 
