@@ -1,1 +1,0 @@
-E:\projectes\kmp_projects\GitHubIssueTracker\feature\issue_list\src\main\kotlin\issues\IssueItem.kt

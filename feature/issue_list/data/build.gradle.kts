@@ -2,18 +2,17 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.kotlinxSerialization)
-
 }
 
 android {
-    namespace = "core.network"
+    namespace = "issue_list.data"
     compileSdk = 34
 
     defaultConfig {
         minSdk = 24
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-      //  consumerProguardFiles("consumer-rules.pro")
+      // consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -36,11 +35,8 @@ android {
 }
 
 dependencies {
-    
-    //network IO
-    //network IO
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.okhttp)
-    implementation(libs.ktor.client.content.negotiation)
+    implementation(project(":core:network"))
+    implementation(project(":feature:issue_list:domain"))
+    //For Json serialization
     implementation(libs.ktor.serialization.kotlinx.json)
 }
