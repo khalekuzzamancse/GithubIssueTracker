@@ -1,8 +1,10 @@
 package issue_details.data.repository
 
 import issue_details.data.data_source.APIFacade
+import issue_details.data.entity.CommentEntity
 import issue_details.data.entity.IssueDetailsEntity
 import issue_details.data.utils.EntityToModel
+import issue_details.domain.model.CommentModel
 import issue_details.domain.model.IssueDetailsModel
 import issue_details.domain.repository.IssueDetailsRepository
 
@@ -16,14 +18,22 @@ class IssueDetailsRepositoryImpl : IssueDetailsRepository {
     override suspend fun fetchDetails(issueNumber: String): Result<IssueDetailsModel> {
         val result = APIFacade().requestDetails(issueNumber)
         return if (result.isSuccess) {
-            toModel(result)
+            toDetailsModel(result)
+        } else
+            Result.failure(createFailureException(result.exceptionOrNull()))
+    }
+
+    override suspend fun fetchComments(issueNumber: String): Result<List<CommentModel>> {
+        val result = APIFacade().requestComments(issueNumber)
+        return if (result.isSuccess) {
+            toCommentModel(result)
         } else
             Result.failure(createFailureException(result.exceptionOrNull()))
     }
 
 
     /** convert entity to model*/
-    private fun toModel(result: Result<IssueDetailsEntity>): Result<IssueDetailsModel> {
+    private fun toDetailsModel(result: Result<IssueDetailsEntity>): Result<IssueDetailsModel> {
         return try {
             Result.success(EntityToModel().toModel(result.getOrThrow()))
 
@@ -31,6 +41,18 @@ class IssueDetailsRepositoryImpl : IssueDetailsRepository {
             Result.failure(createFailureException(ex))
         }
     }
+
+    /** convert entity to model*/
+    private fun toCommentModel(result: Result<List<CommentEntity>>): Result<List<CommentModel>> {
+        return try {
+            Result.success(
+                result.getOrThrow().map { EntityToModel().toModel(it) }
+            )
+        } catch (ex: Exception) {
+            Result.failure(createFailureException(ex))
+        }
+    }
+
 
     /** Create  meaning error message on exception rise*/
     private fun createFailureException(exception: Throwable?): Throwable {

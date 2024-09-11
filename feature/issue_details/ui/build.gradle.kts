@@ -50,6 +50,8 @@ dependencies {
     implementation(libs.coil.compose.v270)
     //MarkDown Viewer
     implementation(libs.compose.markdown)
+    implementation(project(":common:ui"))
     implementation(project(":feature:issue_details:domain"))
     implementation(project(":feature:issue_details:di_container"))
+
 }

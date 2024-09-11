@@ -10,7 +10,9 @@ data class IssueDetailsModel(
     val title: String,
     val body: String,
     val createdTime: String,
-    val creatorAvatarLink: String,
-    val creatorUsername: String,
-    val labels: List<LabelModel> = emptyList(),
+    val creator: UserShortInfoModel,
+    val labels: List<LabelModel>,
+    val assigneeModel: List<UserShortInfoModel>,
+    val status: String,
 )
+

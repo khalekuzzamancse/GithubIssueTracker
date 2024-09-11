@@ -5,23 +5,23 @@ plugins {
 }
 
 android {
-    namespace = "feature.issue_list"
+    namespace = "common.ui"
     compileSdk = 34
 
     defaultConfig {
         minSdk = 24
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-      // consumerProguardFiles("consumer-rules.pro")
+       consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-//            proguardFiles(
-//                getDefaultProguardFile("proguard-android-optimize.txt"),
-//                "proguard-rules.pro"
-//            )
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
@@ -48,13 +48,4 @@ dependencies {
     //Coil for image load
     // implementation(libs.coil)
     implementation(libs.coil.compose.v270)
-    //MarkDown Viewer
-    implementation(libs.compose.markdown)
-    //
-    implementation(project(":core:network"))
-    implementation(project(":feature:issue_list:domain"))
-    implementation(project(":feature:issue_list:di_container"))
-    implementation(project(":common:ui"))
-    //For Json serialization
-    implementation(libs.ktor.serialization.kotlinx.json)
 }

@@ -1,5 +1,6 @@
 package issue_details.domain.repository
 
+import issue_details.domain.model.CommentModel
 import issue_details.domain.model.IssueDetailsModel
 
 /**
@@ -9,4 +10,5 @@ import issue_details.domain.model.IssueDetailsModel
 @Suppress("Unused")
 interface IssueDetailsRepository {
     suspend fun fetchDetails(issueNumber:String): Result<IssueDetailsModel>
+    suspend fun fetchComments(issueNumber:String): Result<List<CommentModel>>
 }

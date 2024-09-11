@@ -20,6 +20,9 @@ dependencyResolutionManagement {
     }
 }
 val applicationsModules= listOf(":application")
+val commonModules= listOf(
+    ":common",":common:misc",":common:ui"
+)
 
 val featureModules= listOf(
     ":feature",
@@ -28,6 +31,6 @@ val featureModules= listOf(
 )
 
 rootProject.name = "GitHub Issue Tracker"
-include(applicationsModules+featureModules)
+include(applicationsModules+commonModules+featureModules)
 include(":core:network")
 

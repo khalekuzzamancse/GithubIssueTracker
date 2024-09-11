@@ -25,7 +25,7 @@ internal data class IssueDetailsEntity(
     @SerialName("title") var title: String,
     @SerialName("user") var user: User,
     @SerialName("labels") var labelEntities: ArrayList<LabelEntity> = arrayListOf(),
-    @SerialName("state") var state: String? = null,
+    @SerialName("state") var state: String="Unknown",
     @SerialName("locked") var locked: Boolean? = null,
     @SerialName("assignee") var assignee: User? = null,
     @SerialName("assignees") var assignees: ArrayList<User> = arrayListOf(),
