@@ -2,9 +2,11 @@ package issue_list.data.repository
 
 import issue_list.data.data_source.APIFacade
 import issue_list.data.entity.IssueEntity
+import issue_list.data.entity.SearchedIssueEntity
 import issue_list.data.utils.EntityToModel
 import issue_list.domain.model.IssueModel
 import issue_list.domain.repository.IssueListRepository
+import issue_list.domain.repository.QueryType
 
 /**
  * - Implementation of [IssueListRepository]
@@ -20,7 +22,13 @@ class IssueListRepositoryImpl : IssueListRepository {
         } else
             Result.failure(createFailureException(result.exceptionOrNull()))
     }
-
+    override suspend fun fetchIssues(queryText:String,type:QueryType): Result<List<IssueModel>> {
+        val result = APIFacade().requestIssueList(queryText, type)
+        return if (result.isSuccess) {
+            searchedEntityToModel(result)
+        } else
+            Result.failure(createFailureException(result.exceptionOrNull()))
+    }
 
     /** convert entity to model*/
     private fun toModel(result: Result<List<IssueEntity>>): Result<List<IssueModel>> {
@@ -33,6 +41,19 @@ class IssueListRepositoryImpl : IssueListRepository {
             Result.failure(createFailureException(ex))
         }
     }
+    /** convert entity to model*/
+    private fun searchedEntityToModel(result: Result<SearchedIssueEntity>): Result<List<IssueModel>> {
+        return try {
+            Result.success(result
+                .getOrThrow()
+                .items
+                .map { entity -> EntityToModel().toEntity(entity) })
+
+        } catch (ex: Exception) {
+            Result.failure(createFailureException(ex))
+        }
+    }
+
 
     /** Create  meaning error message on exception rise*/
     private fun createFailureException(exception: Throwable?): Throwable {

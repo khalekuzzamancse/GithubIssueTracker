@@ -11,129 +11,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import common.ui.LabelListView
 import common.ui.LabelViewData
 import common.ui.UserShortInfoView
-import issue_list.di_container.DIFactory
-import issue_list.domain.model.IssueModel
-import issue_list.domain.model.LabelModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-/**
- * - Show list of issue
- * - Should call when issue list is ready because it does not handle data fetching or loading ,
- * so it does not have any progress bar
- */
-@Composable
-internal fun IssuesList(
-    modifier: Modifier = Modifier,
-    issues: List<IssueViewData>,
-    onDetailsRequest: (id: String) -> Unit,
-    onUserProfileRequest: (userName: String) -> Unit,
-    ) {
-    LazyColumn(modifier) {
-        itemsIndexed(issues) { index, issue ->
-            val isNotLastItem = (index != issues.lastIndex)
-            _IssueView(
-                modifier = Modifier.padding(8.dp),
-                info = issue,
-                onDetailsRequest = { onDetailsRequest(issue.id) },
-                onUserProfileRequest = { onUserProfileRequest(issue.creatorName) }
-            )
-            if (isNotLastItem) {
-                HorizontalDivider()
-            }
-
-        }
-    }
-}
-
-
-class IssueListViewController {
-    private val _issues = MutableStateFlow<List<IssueViewData>?>(null)
-    internal val issues = _issues.asStateFlow()
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
-
-    /**either error or success message,can be shown using snackBar*/
-    private val _screenMessage = MutableStateFlow<String?>(null)
-
-    /**Should be used by Screen/Route component that is not making internal*/
-    val screenMessage = _screenMessage.asStateFlow()
-
-
-    internal suspend fun fetchIssues() {
-        val response = DIFactory.createIssueListRepository().fetchIssues()
-        if (response.isSuccess) {
-            updateState(response)
-        } else {
-            _updateScreenMessage("Failed to fetch details:${response.exceptionOrNull()}")
-        }
-    }
-
-
-    /** taking in wrapping in Result so that exception can handle by this method*/
-    private fun updateState(result: Result<List<IssueModel>>) {
-        try {
-            _issues.update {
-                result.getOrThrow().map(::toIssueViewData)
-            }
-
-        } catch (e: Exception) {
-            _updateScreenMessage("Failed to fetch details:$e")
-        }
-    }
-
-
-    //TODO:Helper method section-------------
-    private fun toLabelViewData(model: LabelModel) = LabelViewData(
-        name = model.name,
-        hexCode = model.hexCode,
-        description = model.description
-    )
-
-    private fun toIssueViewData(model: IssueModel) = IssueViewData(
-        title = model.title,
-        id = model.id,
-        creatorName = model.creatorName,
-        creatorAvatarLink = model.userAvatarLink,
-        createdTime = model.createdTime,
-        labels =model.labels.map(::toLabelViewData)
-    )
-
-    private fun _updateScreenMessage(msg: String?) {
-        CoroutineScope(Dispatchers.Default).launch {
-            _screenMessage.update { msg }
-            delay(3000)
-            _screenMessage.update { null }//clear message after 3 sec
-        }
-
-    }
-}
 
 
 @SuppressLint("ComposableNaming")
 @Composable
-private fun _IssueView(
+internal fun IssueView(
     modifier: Modifier = Modifier,
     info: IssueViewData,
+    highlightedText: String?,
     onDetailsRequest: () -> Unit,
     onUserProfileRequest: () -> Unit,
 ) {
@@ -146,7 +44,11 @@ private fun _IssueView(
         title = {
             Text(
                 modifier = it.clickable { onDetailsRequest() },
-                text = info.title,
+                text = if (highlightedText == null) AnnotatedString(info.title) else
+                    SearcherHighlightedText().getHighLightedString(
+                        info.title,
+                        highlightedText
+                    ),
                 style = MaterialTheme.typography.titleMedium
             )
         },
@@ -180,12 +82,7 @@ private fun _IssueView(
 
 }
 
-@SuppressLint("NewApi")
-private fun _extractDateFromTimestamp(timestamp: String): String {
-    val formatter = DateTimeFormatter.ISO_DATE_TIME
-    val dateTime = LocalDateTime.parse(timestamp, formatter)
-    return dateTime.toLocalDate().toString()
-}
+
 
 
 /**
@@ -242,4 +139,11 @@ private fun _IssueViewLayout(
 
     }
 
+}
+//Helper methods
+@SuppressLint("NewApi")
+private fun _extractDateFromTimestamp(timestamp: String): String {
+    val formatter = DateTimeFormatter.ISO_DATE_TIME
+    val dateTime = LocalDateTime.parse(timestamp, formatter)
+    return dateTime.toLocalDate().toString()
 }

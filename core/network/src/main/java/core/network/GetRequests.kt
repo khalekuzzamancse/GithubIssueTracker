@@ -37,18 +37,18 @@ data class ResponseDecorator<T>(
 
 class GetRequests {
     val tag: String = this.javaClass.simpleName
-    val client = HttpClient {
-        install(ContentNegotiation) {
-            json()
-        }
-    }
-//val client = HttpClient {
-//    install(ContentNegotiation) {
-//        json(Json {
-//            ignoreUnknownKeys = true // This will ignore unknown keys in the response
-//        })
+//    val client = HttpClient {
+//        install(ContentNegotiation) {
+//            json()
+//        }
 //    }
-//}
+val client = HttpClient {
+    install(ContentNegotiation) {
+        json(Json {
+            ignoreUnknownKeys = true // This will ignore unknown keys in the response
+        })
+    }
+}
 
 
     suspend inline fun <reified T> request(url: String): Result<T> {

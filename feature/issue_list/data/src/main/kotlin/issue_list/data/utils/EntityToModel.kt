@@ -11,7 +11,7 @@ import issue_list.domain.model.LabelModel
 internal class EntityToModel {
     fun toEntity(entity: IssueEntity): IssueModel {
         return IssueModel(
-            id = entity.number,
+            id = entity.number.toString(),
             title = entity.title,
             createdTime = entity.createdAt,
             userAvatarLink = entity.user.avatarUrl,

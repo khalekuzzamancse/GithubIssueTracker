@@ -9,4 +9,9 @@ import issue_list.domain.model.IssueModel
 @Suppress("Unused")
 interface IssueListRepository {
     suspend fun fetchIssues(): Result<List<IssueModel>>
+    /**Used for search issue*/
+    suspend fun fetchIssues(queryText:String,type:QueryType): Result<List<IssueModel>>
+}
+enum class QueryType{
+    Title,All
 }

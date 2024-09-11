@@ -8,14 +8,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.kzcse.githubissuetracker.ui.theme.GitHubIssueTrackerTheme
-import feature.issue_details.routes.IssueDetailsRoute
 import feature.issue_list.components.IssueListViewController
-import feature.issue_list.route.IssuesListRoute
+import feature.search.route.IssuesListSearchRoute
 
 
 class MainActivity : ComponentActivity() {
@@ -27,8 +25,7 @@ class MainActivity : ComponentActivity() {
                 val controller = remember { IssueListViewController() }
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(Modifier.padding(innerPadding)) {
-
-                        IssuesListRoute(
+                        IssuesListSearchRoute(
                             controller = controller,
                             onDetailsRequest = {
                                 Log.d("InfoRe::", "Details")
@@ -37,6 +34,16 @@ class MainActivity : ComponentActivity() {
                                 Log.d("InfoRe::", "user")
                             }
                         )
+
+//                        IssuesListRoute(
+//                            controller = controller,
+//                            onDetailsRequest = {
+//                                Log.d("InfoRe::", "Details")
+//                            },
+//                            onUserProfileRequest = {
+//                                Log.d("InfoRe::", "user")
+//                            }
+//                        )
 
 //                        IssueDetailsRoute(
 //                            modifier = Modifier
