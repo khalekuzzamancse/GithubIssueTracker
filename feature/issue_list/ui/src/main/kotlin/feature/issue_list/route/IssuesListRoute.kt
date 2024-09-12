@@ -17,7 +17,7 @@ import feature.issue_list.components.IssuesListView
 fun IssuesListRoute(
     modifier: Modifier = Modifier,
     controller: IssueListViewController,
-    onDetailsRequest: (id: String) -> Unit,
+    onDetailsRequest: (issueNum: String) -> Unit,
     onUserProfileRequest: (userName: String) -> Unit,
 ) {
     LaunchedEffect(Unit) {

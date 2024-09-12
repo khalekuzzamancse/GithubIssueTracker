@@ -51,7 +51,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -60,23 +59,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-    //Coil for image load
-   // implementation(libs.coil)
-    implementation(libs.coil.compose.v270)
-    //MarkDown Viewer
-    implementation(libs.compose.markdown)
-    //
-    implementation(project(":core:network"))
-    implementation(project(":feature:issue_list:ui"))
-    implementation(project(":feature:issue_details:ui"))
-    implementation(project(":feature:search"))
-    //For Json serialization
-    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(project(":feature:navigation"))
+
 }

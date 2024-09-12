@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "common.ui"
+    namespace = "feature.navigation"
     compileSdk = 34
 
     defaultConfig {
@@ -45,8 +45,11 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    //Coil for image load
-    // implementation(libs.coil)
-    implementation(libs.coil.compose.v270)
-    implementation("dev.chrisbanes.material3:material3-window-size-class-multiplatform:0.3.1")//window size
+    implementation(project(":core:network"))
+    implementation(project(":feature:issue_list:ui"))
+    implementation(project(":feature:issue_details:ui"))
+    implementation(project(":feature:search"))
+    implementation(libs.ktor.serialization.kotlinx.json) //For Json serialization
+    implementation(libs.androidx.navigation.compose)//For navigation
+    implementation(libs.windowSize)//window size
 }

@@ -14,7 +14,7 @@ import issue_details.domain.model.LabelModel
 internal class EntityToModel {
     fun toModel(entity: IssueDetailsEntity): IssueDetailsModel {
         return IssueDetailsModel(
-            num = entity.number,
+            num = entity.number.toString(),
             title = entity.title,
             body = entity.body,
             createdTime = entity.createdAt,

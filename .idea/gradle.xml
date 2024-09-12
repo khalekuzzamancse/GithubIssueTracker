@@ -26,6 +26,7 @@
             <option value="$PROJECT_DIR$/feature/issue_list/di_container" />
             <option value="$PROJECT_DIR$/feature/issue_list/domain" />
             <option value="$PROJECT_DIR$/feature/issue_list/ui" />
+            <option value="$PROJECT_DIR$/feature/navigation" />
             <option value="$PROJECT_DIR$/feature/search" />
           </set>
         </option>

@@ -25,7 +25,7 @@ import issue_list.domain.repository.QueryType
 
 
 @Composable
-fun IssuesListSearchRoute(
+fun IssuesSearchRoute(
     modifier: Modifier = Modifier,
     controller: IssueListViewController,
     onDetailsRequest: (id: String) -> Unit,

@@ -61,7 +61,7 @@ fun LabelView(
 ) {
     var showDialog by remember { mutableStateOf(false) }
     Box(
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(4.dp))
             .background(_hexToColor(hexCode))
             .padding(2.dp)

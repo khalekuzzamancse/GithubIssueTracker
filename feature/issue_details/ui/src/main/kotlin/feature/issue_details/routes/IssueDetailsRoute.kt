@@ -58,12 +58,14 @@ import java.util.Locale
 @Composable
 fun IssueDetailsRoute(
     modifier: Modifier = Modifier,
+    issueNum: String,
     onUserProfileRequest: (username: String) -> Unit,
 ) {
     val controller = remember { IssueDetailsController() }
     IssueDetails(
         modifier = modifier,
         controller = controller,
+        issueNum=issueNum,
         onUserProfileRequest = onUserProfileRequest
     )
 }
@@ -78,10 +80,11 @@ fun IssueDetailsRoute(
 fun IssueDetails(
     modifier: Modifier = Modifier,
     controller: IssueDetailsController,
+    issueNum: String,
     onUserProfileRequest: (username: String) -> Unit,
 ) {
     LaunchedEffect(Unit) {
-        controller.fetchDetails("")
+        controller.fetchDetails(issueNum)
     }
     controller.details.collectAsState().value?.let { details ->
         _IssueDetailsLayout(

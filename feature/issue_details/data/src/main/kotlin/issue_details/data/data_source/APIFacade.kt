@@ -11,7 +11,7 @@ internal class APIFacade {
     suspend fun requestDetails(issueNo: String): Result<IssueDetailsEntity> {
         return GetRequests()
             .request<IssueDetailsEntity>(
-                url = "$baseUrl/issues/154741"
+                url = "$baseUrl/issues/$issueNo"
             )
 
     }
