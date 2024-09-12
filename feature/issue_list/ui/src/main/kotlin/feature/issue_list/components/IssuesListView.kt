@@ -3,11 +3,15 @@
 package feature.issue_list.components
 
 import android.util.Log
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import common.ui.LabelViewData
@@ -28,30 +32,38 @@ import kotlinx.coroutines.launch
  * - Show list of issue
  * - Should call when issue list is ready because it does not handle data fetching or loading ,
  * so it does not have any progress bar
+ * - It show helpful UI when the issue list is empty
  *  @param highlightedText searched/query text that will be highlighted while using search feature
  */
 @Composable
- fun IssuesListView(
+fun IssuesListView(
     modifier: Modifier = Modifier,
     issues: List<IssueViewData>,
     highlightedText: String?,
     onDetailsRequest: (id: String) -> Unit,
     onUserProfileRequest: (userName: String) -> Unit,
 ) {
-    LazyColumn(modifier) {
-        itemsIndexed(issues) { index, issue ->
-            val isNotLastItem = (index != issues.lastIndex)
-            IssueView(
-                modifier = Modifier.padding(8.dp),
-                info = issue,
-                highlightedText = highlightedText,
-                onDetailsRequest = { onDetailsRequest(issue.id) },
-                onUserProfileRequest = { onUserProfileRequest(issue.creatorName) }
-            )
-            if (isNotLastItem) {
-                HorizontalDivider()
-            }
 
+    if (issues.isEmpty()) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("No issue found")
+        }
+    } else {
+        LazyColumn(modifier) {
+            itemsIndexed(issues) { index, issue ->
+                val isNotLastItem = (index != issues.lastIndex)
+                IssueView(
+                    modifier = Modifier.padding(8.dp),
+                    info = issue,
+                    highlightedText = highlightedText,
+                    onDetailsRequest = { onDetailsRequest(issue.id) },
+                    onUserProfileRequest = { onUserProfileRequest(issue.creatorName) }
+                )
+                if (isNotLastItem) {
+                    HorizontalDivider()
+                }
+
+            }
         }
     }
 }
@@ -59,7 +71,7 @@ import kotlinx.coroutines.launch
 
 class IssueListViewController {
     private val _issues = MutableStateFlow<List<IssueViewData>?>(null)
-     val issues = _issues.asStateFlow()
+    val issues = _issues.asStateFlow()
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
@@ -71,6 +83,7 @@ class IssueListViewController {
 
 
     internal suspend fun fetchIssues() {
+        _isLoading.update { true }
         val response = DIFactory.createIssueListRepository().fetchIssues()
         if (response.isSuccess) {
             updateState(response)
@@ -78,17 +91,22 @@ class IssueListViewController {
 
             _updateScreenMessage("Failed to fetch details:${response.exceptionOrNull()}")
         }
+        _isLoading.update { false }
     }
 
-    /** public so that outer module can use it to build search feature*/
-    suspend fun searchIssues(queryText: String, type: QueryType) {
-        val response = DIFactory.createIssueListRepository().fetchIssues(queryText, type)
+    /** public so that outer module can use it to build search feature
+     * @param ignoreKeyword the keyword that should ignore
+     **/
+    suspend fun searchIssues(query: String, type: QueryType,ignoreKeyword:String) {
+        _isLoading.update { true }
+        val response = DIFactory.createIssueListRepository().fetchIssues(query, type,ignoreKeyword)
         if (response.isSuccess) {
             updateState(response)
         } else {
             Log.d("FetchIssue", "FailedTo:${response.exceptionOrNull()}")
             _updateScreenMessage("Failed to fetch details:${response.exceptionOrNull()}")
         }
+        _isLoading.update { false }
     }
 
 

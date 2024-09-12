@@ -34,7 +34,7 @@ import common.ui.LabelViewData
 import common.ui.TextWithLessOpacity
 import common.ui.UserShortInfoView
 import common.ui.VerticalGap_32Dp
-import common.ui.VerticalGap_8Dp
+import common.ui.VerticalSpace_8Dp
 import feature.issue_details.components.AssigneeListView
 import feature.issue_details.components.AssigneeViewData
 import feature.issue_details.components.CommentListView
@@ -277,14 +277,14 @@ private fun _IssueDetailsLayout(
             text = "Labels",
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
-        VerticalGap_8Dp()
+        VerticalSpace_8Dp()
         labels(Modifier)
         VerticalGap_32Dp()
         _Heading(
             text = "Assignees",
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
-        VerticalGap_8Dp()
+        VerticalSpace_8Dp()
         assignees(Modifier)
         VerticalGap_32Dp()
         _Heading(
@@ -297,7 +297,7 @@ private fun _IssueDetailsLayout(
             text = "Comments",
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
-        VerticalGap_8Dp()
+        VerticalSpace_8Dp()
         comments(Modifier)
     }
 

@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.dp
 @Composable
  fun VerticalGap_32Dp()= Spacer(Modifier.height(32.dp))
 @Composable
-fun VerticalGap_8Dp()= Spacer(Modifier.height(8.dp))
+fun VerticalSpace_8Dp()= Spacer(Modifier.height(8.dp))
 @Composable
 fun VerticalGap_16Dp()= Spacer(Modifier.height(16.dp))
 @Composable

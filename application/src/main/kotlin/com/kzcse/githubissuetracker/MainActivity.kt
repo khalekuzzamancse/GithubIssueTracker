@@ -25,6 +25,7 @@ class MainActivity : ComponentActivity() {
                 val controller = remember { IssueListViewController() }
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(Modifier.padding(innerPadding)) {
+
                         IssuesListSearchRoute(
                             controller = controller,
                             onDetailsRequest = {

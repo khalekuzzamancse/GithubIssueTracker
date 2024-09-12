@@ -22,10 +22,23 @@ class IssueListRepositoryImpl : IssueListRepository {
         } else
             Result.failure(createFailureException(result.exceptionOrNull()))
     }
-    override suspend fun fetchIssues(queryText:String,type:QueryType): Result<List<IssueModel>> {
+
+    /**
+     * @param queryText the keyword that will be searched
+     * @param type such as searched in title,description, etc. right now only searching in the title
+     * @param ignoreKeyword based on this keyword issue will be filtered, right now, not found any github api
+     * to search using ignore keyword, that is why manually filtering the issue, currently ignoring keyword only from the title,
+     * if need to ignore from other property such as label, description, comment then modify it
+     */
+
+    override suspend fun fetchIssues(
+        queryText: String,
+        type: QueryType,
+        ignoreKeyword: String
+    ): Result<List<IssueModel>> {
         val result = APIFacade().requestIssueList(queryText, type)
         return if (result.isSuccess) {
-            searchedEntityToModel(result)
+            searchedEntityToModel(result, ignoreKeyword)
         } else
             Result.failure(createFailureException(result.exceptionOrNull()))
     }
@@ -41,14 +54,25 @@ class IssueListRepositoryImpl : IssueListRepository {
             Result.failure(createFailureException(ex))
         }
     }
-    /** convert entity to model*/
-    private fun searchedEntityToModel(result: Result<SearchedIssueEntity>): Result<List<IssueModel>> {
+
+    /** - Convert entity to model
+     * - Right now, not found any github api to search using ignore keyword, that is why manually filtering the issues
+     * - Right now it ignore keyword only from the title, if need to ignore from other property
+     * such as label, description, comment then modify it
+     * */
+    private fun searchedEntityToModel(
+        result: Result<SearchedIssueEntity>,
+        ignoreKeyword: String
+    ): Result<List<IssueModel>> {
         return try {
-            Result.success(result
+            var entities = result
                 .getOrThrow()
                 .items
-                .map { entity -> EntityToModel().toEntity(entity) })
-
+                .map { entity -> EntityToModel().toEntity(entity) }
+            if (ignoreKeyword.isNotEmpty())
+            //TODO: ignore the other property  also if needed
+                entities = entities.filter { entity -> !entity.title.contains(ignoreKeyword) }
+            Result.success(entities)
         } catch (ex: Exception) {
             Result.failure(createFailureException(ex))
         }
