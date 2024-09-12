@@ -18,3 +18,5 @@
 ### Issues
 - Fix ignore Unknown filed json format
 - show Error message
+## Theming
+text color white of labels
