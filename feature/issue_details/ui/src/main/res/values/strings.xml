@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="no_one_assigned">No one assigned</string>
+    <string name="no_comment_found">No comment found</string>
+    <string name="no_description_found">No description found</string>
+    <string name="no_label_found">No label found</string>
+    <string name="labels">Labels</string>
+    <string name="assignees">Assignees</string>
+    <string name="description">Description</string>
+    <string name="comments">Comments</string>
+</resources>

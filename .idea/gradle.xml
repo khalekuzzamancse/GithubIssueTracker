@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
@@ -9,11 +10,24 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/application" />
+            <option value="$PROJECT_DIR$/common" />
+            <option value="$PROJECT_DIR$/common/misc" />
+            <option value="$PROJECT_DIR$/common/ui" />
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/core/network" />
             <option value="$PROJECT_DIR$/feature" />
+            <option value="$PROJECT_DIR$/feature/issue_details" />
+            <option value="$PROJECT_DIR$/feature/issue_details/data" />
+            <option value="$PROJECT_DIR$/feature/issue_details/di" />
+            <option value="$PROJECT_DIR$/feature/issue_details/domain" />
+            <option value="$PROJECT_DIR$/feature/issue_details/ui" />
             <option value="$PROJECT_DIR$/feature/issue_list" />
-            <option value="$PROJECT_DIR$/feature/mylibrary" />
+            <option value="$PROJECT_DIR$/feature/issue_list/data" />
+            <option value="$PROJECT_DIR$/feature/issue_list/di" />
+            <option value="$PROJECT_DIR$/feature/issue_list/domain" />
+            <option value="$PROJECT_DIR$/feature/issue_list/ui" />
+            <option value="$PROJECT_DIR$/feature/navigation" />
+            <option value="$PROJECT_DIR$/feature/search" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

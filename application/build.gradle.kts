@@ -6,8 +6,8 @@ plugins {
 
 android {
     namespace = "com.kzcse.githubissuetracker"
-    compileSdk = 34
-
+//    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
         applicationId = "com.kzcse.githubissuetracker"
         minSdk = 24
@@ -24,10 +24,10 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+//            proguardFiles(
+//                getDefaultProguardFile("proguard-android-optimize.txt"),
+//                "proguard-rules.pro"
+//            )
         }
     }
     compileOptions {
@@ -41,7 +41,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.13"
     }
     packaging {
         resources {
@@ -51,7 +51,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -60,20 +59,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-    //Coil for image load
-   // implementation(libs.coil)
-    implementation(libs.coil.compose.v270)
-    //MarkDown Viewer
-    implementation(libs.compose.markdown)
-    //
-    implementation(project(":core:network"))
-    //For Json serialization
-    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(project(":feature:navigation"))
+    implementation(libs.androidx.ui.text.google.fonts)
+    implementation(project(":common:ui"))
+    implementation(libs.androidx.lifecycle.viewmodel.compose)//Viewmodel
 }
