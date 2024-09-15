@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "feature.navigation"
+    namespace = "feature_navigation"
     compileSdk = 34
 
     defaultConfig {
@@ -52,4 +52,5 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json) //For Json serialization
     implementation(libs.androidx.navigation.compose)//For navigation
     implementation(libs.windowSize)//window size
+    implementation(libs.androidx.lifecycle.viewmodel.compose)//Viewmodel
 }

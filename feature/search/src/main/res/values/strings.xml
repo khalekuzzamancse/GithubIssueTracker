@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Search...</string>
+    <string name="ignore_keyword">Ignore keyword</string>
+    <string name="enter_a_keyword_to_ignore">Enter a keyword to ignore</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+</resources>

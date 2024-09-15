@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "feature.search"
+    namespace = "feature_search"
     compileSdk = 34
 
     defaultConfig {
@@ -55,9 +55,10 @@ dependencies {
     //Need to IssueList data,domain,ui,di_container because these are common
     implementation(project(":feature:issue_list:domain"))
     implementation(project(":feature:issue_list:ui"))
-    implementation(project(":feature:issue_list:di_container"))
+    implementation(project(":feature:issue_list:di"))
 
     implementation(project(":common:ui"))
     //For Json serialization
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)//Viewmodel
 }

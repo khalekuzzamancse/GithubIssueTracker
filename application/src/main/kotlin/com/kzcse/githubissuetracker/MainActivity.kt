@@ -7,8 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.kzcse.githubissuetracker.ui.theme.GitHubIssueTrackerTheme
-import feature.navigation.Navigation
+import feature_navigation.route.Navigation
 
 
 class MainActivity : ComponentActivity() {
@@ -16,7 +15,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            GitHubIssueTrackerTheme {
+            Theme {
                 Scaffold { innerPadding ->
                     Navigation(modifier = Modifier.padding(innerPadding))
                 }

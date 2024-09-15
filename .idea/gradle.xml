@@ -18,12 +18,12 @@
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/issue_details" />
             <option value="$PROJECT_DIR$/feature/issue_details/data" />
-            <option value="$PROJECT_DIR$/feature/issue_details/di_container" />
+            <option value="$PROJECT_DIR$/feature/issue_details/di" />
             <option value="$PROJECT_DIR$/feature/issue_details/domain" />
             <option value="$PROJECT_DIR$/feature/issue_details/ui" />
             <option value="$PROJECT_DIR$/feature/issue_list" />
             <option value="$PROJECT_DIR$/feature/issue_list/data" />
-            <option value="$PROJECT_DIR$/feature/issue_list/di_container" />
+            <option value="$PROJECT_DIR$/feature/issue_list/di" />
             <option value="$PROJECT_DIR$/feature/issue_list/domain" />
             <option value="$PROJECT_DIR$/feature/issue_list/ui" />
             <option value="$PROJECT_DIR$/feature/navigation" />

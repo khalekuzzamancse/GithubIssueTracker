@@ -5,14 +5,14 @@ plugins {
 }
 
 android {
-    namespace = "feature.issue_details"
+    namespace = "feature_issuedetails"
     compileSdk = 34
 
     defaultConfig {
         minSdk = 24
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-       consumerProguardFiles("consumer-rules.pro")
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -45,13 +45,12 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    //Coil for image load
-    // implementation(libs.coil)
-    implementation(libs.coil.compose.v270)
-    //MarkDown Viewer
-    implementation(libs.compose.markdown)
+
+    implementation(libs.coil.compose.v270) //Coil for image load
+    implementation(libs.compose.markdown)   //MarkDown Viewer
     implementation(project(":common:ui"))
     implementation(project(":feature:issue_details:domain"))
-    implementation(project(":feature:issue_details:di_container"))
+    implementation(project(":feature:issue_details:di"))
 
+    implementation(libs.androidx.lifecycle.viewmodel.compose)//Viewmodel
 }

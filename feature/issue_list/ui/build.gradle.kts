@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "feature.issue_list"
+    namespace = "feature_lissuelist"
     compileSdk = 34
 
     defaultConfig {
@@ -53,8 +53,9 @@ dependencies {
     //
     implementation(project(":core:network"))
     implementation(project(":feature:issue_list:domain"))
-    implementation(project(":feature:issue_list:di_container"))
+    implementation(project(":feature:issue_list:di"))
     implementation(project(":common:ui"))
     //For Json serialization
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)//Viewmodel
 }
