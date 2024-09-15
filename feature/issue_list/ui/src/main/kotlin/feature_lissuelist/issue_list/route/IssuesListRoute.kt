@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,10 +22,6 @@ fun IssuesListRoute(
     onUserProfileRequest: (userName: String) -> Unit,
 ) {
     val viewModel = IssueListFactory.createIssueListController()
-    LaunchedEffect(Unit) {
-        //start fetching...
-        viewModel.onIssueListRequest()
-    }
 
     val issues = viewModel.issues.collectAsState().value
     val showProgressBar = (viewModel.isLoading.collectAsState().value || issues == null)
