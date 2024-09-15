@@ -10,12 +10,8 @@ import kotlinx.serialization.Serializable
 @Suppress("Unused")
 @Serializable
 internal data class LabelEntity(
-    @SerialName("id") var id: Long? = null,
-    @SerialName("node_id") var nodeId: String? = null,
-    @SerialName("url") var url: String? = null,
     @SerialName("name") var name: String,
     @SerialName("color") var color: String,
-    @SerialName("default") var default: Boolean? = null,
     @SerialName("description") var description: String="",
 
 )

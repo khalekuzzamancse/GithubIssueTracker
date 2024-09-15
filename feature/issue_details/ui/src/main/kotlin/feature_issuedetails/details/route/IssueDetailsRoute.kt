@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,6 +33,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import common.ui.HorizontalGap_8Dp
 import common.ui.LabelViewData
+import common.ui.SnackBar
+import common.ui.SnackBarMessage
 import common.ui.TextWithLessOpacity
 import common.ui.UserShortInfoView
 import common.ui.VerticalGap_32Dp
@@ -53,12 +56,28 @@ fun IssueDetailsRoute(
     onUserProfileRequest: (username: String) -> Unit,
 ) {
     val viewModel = remember { IssueDetailsViewModel() }
-    IssueDetailsView(
-        modifier = modifier,
-        controller = viewModel,
-        issueNum = issueNum,
-        onUserProfileRequest = onUserProfileRequest
-    )
+    Scaffold(
+        snackbarHost = {
+            viewModel.screenMessage.collectAsState().value?.let {
+                SnackBar(
+                    message = it,
+                    onDismissRequest = {
+                        viewModel.onScreenMessageDismissRequest()
+                    }
+                )
+            }
+
+        }
+    ) { innerPadding ->
+        IssueDetailsView(
+            modifier = modifier.padding(innerPadding),
+            controller = viewModel,
+            issueNum = issueNum,
+            onUserProfileRequest = onUserProfileRequest
+        )
+
+    }
+
 }
 
 /**
@@ -151,16 +170,19 @@ private fun IssueDetailsView(
  *
 
  */
-internal interface  IssueDetailsViewController {
+internal interface IssueDetailsViewController {
     /**The observable details ,nullable because may be failed to fetch */
     val details: StateFlow<IssueDetailsViewData?>
     val isLoading: StateFlow<Boolean>
 
     /**either error or success message,can be shown using snackBar*/
-    val screenMessage: StateFlow<String?>
+    val screenMessage: StateFlow<SnackBarMessage?>
 
     /**request for issue details ,following unidirectional data flow so issues details will be notified via [details]*/
     suspend fun onDetailsRequest(issueNumber: String)
+
+    /**SnackBar dismiss request*/
+    fun onScreenMessageDismissRequest()
 }
 
 

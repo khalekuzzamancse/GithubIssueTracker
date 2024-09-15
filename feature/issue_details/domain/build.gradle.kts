@@ -31,27 +31,10 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    buildFeatures {
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
-    }
+
 }
 
 dependencies {
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    //Coil for image load
-    // implementation(libs.coil)
-    implementation(libs.coil.compose.v270)
-    //MarkDown Viewer
-    implementation(libs.compose.markdown)
-    //
+
     implementation(project(":core:network"))
-    //For Json serialization
-    implementation(libs.ktor.serialization.kotlinx.json)
 }

@@ -1,7 +1,10 @@
+@file:Suppress("FunctionName")
+
 package feature_lissuelist.issue_list.route
 
 import androidx.lifecycle.ViewModel
 import common.ui.LabelViewData
+import common.ui.SnackBarMessage
 import feature_lissuelist.issue_list.components.IssueListViewController
 import feature_lissuelist.issue_list.components.IssueViewData
 import issue_list.di_container.DIFactory
@@ -16,14 +19,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class IssueListViewModel: ViewModel(),IssueListViewController{
+class IssueListViewModel : ViewModel(), IssueListViewController {
     private val _issues = MutableStateFlow<List<IssueViewData>?>(null)
     override val issues = _issues.asStateFlow()
     private val _isLoading = MutableStateFlow(false)
     override val isLoading = _isLoading.asStateFlow()
 
     /**either error or success message,can be shown using snackBar*/
-    private val _screenMessage = MutableStateFlow<String?>(null)
+    private val _screenMessage = MutableStateFlow<SnackBarMessage?>(null)
 
     /**Should be used by Screen/Route component that is not making internal*/
     override val screenMessage = _screenMessage.asStateFlow()
@@ -35,8 +38,13 @@ class IssueListViewModel: ViewModel(),IssueListViewController{
         if (response.isSuccess) {
             updateState(response)
         } else {
-
-            _updateScreenMessage("Failed to fetch details:${response.exceptionOrNull()}")
+            val exception = response.exceptionOrNull() ?: getDefaultException()
+            _screenMessage.update {
+                SnackBarMessage(
+                    message = exception.message.toString(),
+                    details = exception.cause?.message
+                )
+            }
         }
         _isLoading.update { false }
     }
@@ -50,11 +58,20 @@ class IssueListViewModel: ViewModel(),IssueListViewController{
         if (response.isSuccess) {
             updateState(response)
         } else {
-
-            _updateScreenMessage("Failed to fetch details:${response.exceptionOrNull()}")
+            val exception = response.exceptionOrNull() ?: getDefaultException()
+            _screenMessage.update {
+                SnackBarMessage(
+                    message = exception.message.toString(),
+                    details = exception.cause?.message
+                )
+            }
         }
         _isLoading.update { false }
     }
+    override fun onScreenMessageDismissRequest() {
+       _screenMessage.update { null }
+    }
+
 
 
     /** taking in wrapping in Result so that exception can handle by this method*/
@@ -65,9 +82,18 @@ class IssueListViewModel: ViewModel(),IssueListViewController{
             }
 
         } catch (e: Exception) {
-            _updateScreenMessage("Failed to fetch details:$e")
+            _screenMessage.update {
+                (
+                        SnackBarMessage(
+                            message = "Failed to fetch details",
+                            details = e.stackTrace.toString()
+                        )
+                        )
+            }
         }
     }
+
+
 
 
     //TODO:Helper method section-------------
@@ -86,12 +112,10 @@ class IssueListViewModel: ViewModel(),IssueListViewController{
         labels = model.labels.map(::toLabelViewData)
     )
 
-    private fun _updateScreenMessage(msg: String?) {
-        CoroutineScope(Dispatchers.Default).launch {
-            _screenMessage.update { msg }
-            delay(3000)
-            _screenMessage.update { null }//clear message after 3 sec
-        }
+    private fun getDefaultException() =
+        Throwable(
+            message = "Failed...",
+            cause = Throwable("Unknown reason at ${this.javaClass.name}")
+        )
 
-    }
 }

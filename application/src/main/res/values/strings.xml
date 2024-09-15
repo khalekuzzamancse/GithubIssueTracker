@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">GitHub Issue Tracker</string>
+    <string name="internet_connection_has_gone">Internet connection has gone!</string>
+    <string name="you_have_no_internet_connection_some_functionality_may_not_work_properly">You have no internet connection,some functionality may not work properly</string>
 </resources>

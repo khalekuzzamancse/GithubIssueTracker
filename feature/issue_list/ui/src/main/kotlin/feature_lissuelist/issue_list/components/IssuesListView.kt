@@ -14,6 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import common.ui.HorizontalGap_8Dp
+import common.ui.SnackBarMessage
+import common.ui.VerticalSpace_8Dp
 import feature_lissuelist.R
 import issue_list.domain.repository.QueryType
 import kotlinx.coroutines.flow.StateFlow
@@ -52,7 +55,9 @@ fun IssuesListView(
                 )
                 if (isNotLastItem) {
                     HorizontalDivider()
+                    VerticalSpace_8Dp()
                 }
+
 
             }
         }
@@ -72,19 +77,22 @@ interface  IssueListViewController {
     /**
      * - The observable details ,nullable because may be failed to fetch-
      * - public  because other feature module such as feature:search can be use it*/
-    abstract val issues: StateFlow<List<IssueViewData>?>
-    abstract val isLoading: StateFlow<Boolean>
+    val issues: StateFlow<List<IssueViewData>?>
+    val isLoading: StateFlow<Boolean>
 
     /**- either error or success message,can be shown using snackBar
      * - public  because other feature module such as feature:search can be use it*/
-    abstract val screenMessage: StateFlow<String?>
+    val screenMessage: StateFlow<SnackBarMessage?>
 
     /**request for issue details ,following unidirectional data flow so issues details will be notified via [issues]*/
-     abstract suspend fun onIssueListRequest()
+     suspend fun onIssueListRequest()
 
     /** - public  because other feature module such as feature:search can be use it
      * @param ignoreKeyword the keyword that should ignore
      **/
-    abstract suspend fun onIssueSearch(query: String, type: QueryType, ignoreKeyword: String)
+    suspend fun onIssueSearch(query: String, type: QueryType, ignoreKeyword: String)
+
+    /**SnackBar dismiss request*/
+    fun onScreenMessageDismissRequest()
 }
 

@@ -12,7 +12,6 @@ internal class APIFacade {
         .request<List<IssueEntity>>(
             url = "https://api.github.com/repos/flutter/flutter/issues"
         )
-
     /**For searching*/
     suspend fun requestIssueList(queryText: String, type: QueryType): Result<SearchedIssueEntity> {
         val url = when (type) {

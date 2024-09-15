@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="no_description_found">No description found</string>
+    <string name="ok">OK</string>
+    <string name="no_additional_details_available">No additional details available</string>
+    <string name="details">Details</string>
+</resources>

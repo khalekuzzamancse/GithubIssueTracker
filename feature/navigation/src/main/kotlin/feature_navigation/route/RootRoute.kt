@@ -11,8 +11,9 @@ import androidx.navigation.compose.rememberNavController
 import feature_navigation.component.NavigationLayoutDecorator
 import feature_navigation.component.RootNavHost
 
+
 @Composable
-fun Navigation(
+ fun Navigation(
     modifier: Modifier = Modifier,
 ) {
     val viewModel = viewModel<NavigationViewModel>()

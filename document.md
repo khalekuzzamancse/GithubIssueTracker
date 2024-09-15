@@ -1,31 +1,6 @@
-# TODO:
-
-- User profile open on profile image or name click
-- Check internet connection
-
-## IssueList
-
-- Why all issue not fetching?
-- Should use graphQL or paging?
-
-## Details Screen
-
-## Show user profile
-
-    on image or username click
-
-## Add paging
 
 ## Add dependency inject(Koin)
 
-### Issues
-
-- Fix ignore Unknown filed json format
-- show Error message
-
-## Theming
-
-text color white of labels
 
 ## Coding convention
 
@@ -54,11 +29,11 @@ text color white of labels
   event of particular `View`
     - It is can be used for both small and larger `View` or `Composable`
 - Suffix with `ViewModel`preserve the state and response to event of a Route or destination
-  level `View` or `Composable`
+  level `View` or `Composable` so `ViewModel is a Controller`
     - Since the Route or destination level `View` or `Composable` is composed of small small
       destination level `Composable` so it
       preserve the `Controller` on configuration changed
-- Basically the  `Controller` prevent a Monster ViewModel
+
 
 ### Package:Factory
 

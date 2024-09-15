@@ -45,7 +45,6 @@ internal class EntityToModel {
             createdAt = entity.createdAt,
             updatedAt = entity.updatedAt,
             body = entity.body,
-            authorAssociation = entity.authorAssociation
         )
     }
 }

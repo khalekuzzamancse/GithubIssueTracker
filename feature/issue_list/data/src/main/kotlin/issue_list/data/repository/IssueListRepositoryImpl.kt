@@ -81,7 +81,9 @@ class IssueListRepositoryImpl : IssueListRepository {
 
     /** Create  meaning error message on exception rise*/
     private fun createFailureException(exception: Throwable?): Throwable {
-        val reason = if (exception == null) "unknown exception" else "$exception"
-        return Throwable("Failed to fetch, due to $reason ; at ${this.javaClass.name}")
+        val reason:String = exception?.cause?.stackTraceToString() ?:"Unknown reason at ${this.javaClass.name}"
+        return Throwable(
+            message = "Failed to fetch",
+            cause = Throwable(reason))
     }
 }

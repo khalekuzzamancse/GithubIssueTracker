@@ -1,4 +1,4 @@
-@file:Suppress("ComposableNaming")
+@file:Suppress("ComposableNaming", "UnUsed")
 
 package feature_navigation.component
 
@@ -24,6 +24,10 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -47,15 +51,48 @@ fun NavigationLayoutDecorator(
     selected: Int?,
     content: @Composable () -> Unit,
 ) {
-    BottomBarToNavRailDecorator(
-        modifier = modifier,
-        destinations = navigationItems,
-        onDestinationSelected = onDestinationSelected,
-        selected = selected
-    ) {
-        content()
 
-    }
+    val windowWidthClass = currentWindowAdaptiveInfo().windowSizeClass.windowWidthSizeClass
+    NavigationSuiteScaffold(
+        modifier = modifier,
+        navigationSuiteItems = {
+            navigationItems.forEachIndexed { index, screen ->
+                item(
+                    selected = index == selected,
+                    onClick = {
+                        onDestinationSelected(index)
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = screen.focusedIcon,
+                            contentDescription = screen.label
+                        )
+                    },
+                    label = {
+                        Text(text = screen.label)
+                    }
+                )
+            }
+        },
+        layoutType = if (windowWidthClass == androidx.window.core.layout.WindowWidthSizeClass.EXPANDED) {
+            NavigationSuiteType.NavigationDrawer
+        } else {
+            NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(
+                currentWindowAdaptiveInfo()
+            )
+        },
+        content = content
+    )
+
+//    BottomBarToNavRailDecorator(
+//        modifier = modifier,
+//        destinations = navigationItems,
+//        onDestinationSelected = onDestinationSelected,
+//        selected = selected
+//    ) {
+//        content()
+//
+//    }
 
 }
 
@@ -116,7 +153,6 @@ fun BottomBarToNavRailDecorator(
 
 
 }
-
 
 
 /**

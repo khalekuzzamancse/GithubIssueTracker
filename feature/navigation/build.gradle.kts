@@ -12,7 +12,7 @@ android {
         minSdk = 24
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-       consumerProguardFiles("consumer-rules.pro")
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -35,7 +35,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.13"
     }
 }
 
@@ -53,4 +53,10 @@ dependencies {
     implementation(libs.androidx.navigation.compose)//For navigation
     implementation(libs.windowSize)//window size
     implementation(libs.androidx.lifecycle.viewmodel.compose)//Viewmodel
+
+    implementation("androidx.compose.material3.adaptive:adaptive:1.1.0-alpha02")
+    implementation("androidx.compose.material3.adaptive:adaptive-layout:1.1.0-alpha02")
+    implementation("androidx.compose.material3.adaptive:adaptive-navigation:1.1.0-alpha02")
+    implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.0.0-alpha07")
+
 }

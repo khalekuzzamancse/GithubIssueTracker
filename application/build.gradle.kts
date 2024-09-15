@@ -6,8 +6,8 @@ plugins {
 
 android {
     namespace = "com.kzcse.githubissuetracker"
-    compileSdk = 34
-
+//    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
         applicationId = "com.kzcse.githubissuetracker"
         minSdk = 24
@@ -41,7 +41,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.13"
     }
     packaging {
         resources {
@@ -61,5 +61,6 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(project(":feature:navigation"))
     implementation(libs.androidx.ui.text.google.fonts)
-
+    implementation(project(":common:ui"))
+    implementation(libs.androidx.lifecycle.viewmodel.compose)//Viewmodel
 }

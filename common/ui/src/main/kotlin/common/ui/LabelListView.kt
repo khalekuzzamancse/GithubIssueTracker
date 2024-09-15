@@ -11,11 +11,11 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +24,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 
@@ -32,8 +34,8 @@ import androidx.compose.ui.unit.dp
 fun LabelListView(modifier: Modifier = Modifier,labels:List<LabelViewData>) {
     FlowRow(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         labels.forEach { label ->
             LabelView(//From common:ui module
@@ -60,6 +62,7 @@ fun LabelView(
     description: String?=null,
 ) {
     var showDialog by remember { mutableStateOf(false) }
+
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(4.dp))
@@ -69,11 +72,11 @@ fun LabelView(
                 showDialog = true
             }
     ) {
-        Text(text = name)
+        Text(text = name,color=_getContrastingTextColor(hexCode))
     }
     if (showDialog) {
         _DescriptionDialog(
-            description = description ?: "No description found",
+            description = description ?: stringResource(R.string.no_description_found),
             onDismissRequest = {
                 showDialog = false
             })
@@ -82,11 +85,7 @@ fun LabelView(
 
 }
 
-data class Label(
-    val name: String,
-    val hexCode: String,
-    val description: String?,
-)
+
 
 @Composable
 private fun _DescriptionDialog(
@@ -98,13 +97,17 @@ private fun _DescriptionDialog(
         text = { Text(text = description) },
         confirmButton = {
             Button(onClick = onDismissRequest) {
-                Text("OK")
+                Text(stringResource(R.string.ok))
             }
         }
     )
 
 }
-
+@Composable
+private fun _getContrastingTextColor(hexColor: String): Color {
+    val backgroundColor= _hexToColor(hexColor)
+    return if (backgroundColor.luminance() > 0.5) Color.Black else Color.White
+}
 //TODO:Helper function section
 private fun _hexToColor(hexColor: String): Color {
     // Ensure the hex string has a '#' and is 7 characters long (including '#')

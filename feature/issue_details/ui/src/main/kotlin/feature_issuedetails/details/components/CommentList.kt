@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -22,6 +23,7 @@ import common.ui.TextWithLessOpacity
 import common.ui.UserShortInfoView
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import feature_issuedetails.R
+import issue_details.di_container.DIFactory
 
 
 /**
@@ -32,24 +34,8 @@ import feature_issuedetails.R
 internal fun CommentListView(
     modifier: Modifier = Modifier,
     comments: List<CommentViewData> = emptyList(),
-    onUserProfileRequest:(String)->Unit,
+    onUserProfileRequest: (String) -> Unit,
 ) {
-//    var comments by remember { mutableStateOf<List<CommentViewData>?>(null) }
-//    LaunchedEffect(Unit) {
-//        val response = DIFactory.createIssueDetailsRepository().fetchComments("154741")
-//        if (response.isSuccess) {
-//            comments = response.getOrNull()?.map {
-//                CommentViewData(
-//                    creatorUsername = it.user.username,
-//                    creatorAvatarLink = it.user.avatarLink,
-//                    updatedAt = it.updatedAt,
-//                    createdAt = it.createdAt,
-//                    body = it.body,
-//                    authorAssociation = it.authorAssociation
-//                )
-//            }
-//        }
-//    }
     if (comments.isEmpty())
         TextWithLessOpacity(modifier = modifier, text = stringResource(R.string.no_comment_found))
     else
@@ -67,7 +53,7 @@ internal fun CommentListView(
 private fun _CommentListView(
     modifier: Modifier = Modifier,
     comments: List<CommentViewData>,
-    onUserProfileRequest:(String)->Unit,
+    onUserProfileRequest: (String) -> Unit,
 ) {
     /**Comment list is not large enough so it is okay to not use lazy list*/
     Column(modifier = modifier) {
@@ -95,7 +81,7 @@ private fun _CommentListView(
 private fun _CommentView(
     modifier: Modifier = Modifier,
     data: CommentViewData,
-    onUserProfileRequest:()->Unit,
+    onUserProfileRequest: () -> Unit,
 ) {
     Surface(
         modifier = modifier//margin
@@ -125,7 +111,7 @@ private fun _Header(
     modifier: Modifier = Modifier,
     creatorUsername: String,
     creatorAvatarLink: String,
-    onUserProfileRequest:()->Unit,
+    onUserProfileRequest: () -> Unit,
 ) {
     Surface(modifier = modifier, tonalElevation = 8.dp) {
         Row(
@@ -155,6 +141,5 @@ internal data class CommentViewData(
     val creatorAvatarLink: String,
     val createdAt: String,
     val updatedAt: String?,
-    val authorAssociation: String?,
     val body: String,
 )

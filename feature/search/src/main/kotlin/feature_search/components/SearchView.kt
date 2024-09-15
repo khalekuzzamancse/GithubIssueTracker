@@ -4,10 +4,12 @@ package feature_search.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -21,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -52,15 +55,23 @@ internal fun SearchView(
      **/
     val showFilterOptions = query.isEmpty()
     TextField(
+        modifier = modifier
+            .padding(8.dp)
+            .clip(RoundedCornerShape(16.dp)),
         value = query,
         onValueChange = onQueryChanged,
-        modifier = modifier
-            .padding(8.dp),
+
         placeholder = {
             Text(text = stringResource(R.string.search))
         },
         maxLines = 1,
         singleLine = true,
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription ="search icon"
+            )
+        },
         trailingIcon = {
             if (showFilterOptions) {
                 _SearchFilterOptions(
@@ -83,7 +94,8 @@ internal fun SearchView(
             keyboardController?.hide() // Dismiss the keyboard
         }),
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color.Transparent
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
         )
     )
 
@@ -129,7 +141,7 @@ private fun _FilterByKeyword(
         showInputDialog = true
     }) {
         Icon(
-            painter = painterResource(common.ui.R.drawable.ic_issue_closed),
+            painter = painterResource(R.drawable.ic_block),
             contentDescription = "Filter issue"
         )
     }
