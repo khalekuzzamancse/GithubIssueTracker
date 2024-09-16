@@ -2,9 +2,10 @@
 
 package issue_list.data.repository
 
+import issue_list.data.data_source.IssueQueryServiceFacade
+import issue_list.data.data_source.IssueServiceFacade
 import issue_list.data.entity.IssueEntity
 import issue_list.data.entity.SearchedIssueEntity
-import issue_list.data.factory.Factory
 import issue_list.data.utils.EntityToModel
 import issue_list.domain.model.IssueModel
 import issue_list.domain.repository.IssueListRepository
@@ -14,10 +15,15 @@ import issue_list.domain.repository.QueryType
  * - Implementation of [IssueListRepository]
  * - To avoid tight coupling UI layer should not use it directly,
  * instead UI layer should use it via di_container factory
+ * - Client module should not crate direct `instance` of it but can use it so
+ *  * return the  `instance` via `factory method`
  */
-class IssueListRepositoryImpl : IssueListRepository {
+class IssueListRepositoryImpl internal constructor(
+    private val issueListService: IssueServiceFacade,
+    private val queryService: IssueQueryServiceFacade,
+) : IssueListRepository {
     override suspend fun fetchIssues(): Result<List<IssueModel>> {
-        val result = Factory.createIssueServiceFacade().retrieveIssueList()
+        val result = issueListService.retrieveIssueList()
         return result.fold(
             onSuccess = { entities ->
 
@@ -43,8 +49,7 @@ class IssueListRepositoryImpl : IssueListRepository {
         type: QueryType,
         ignoreKeyword: String
     ): Result<List<IssueModel>> {
-        val result =
-            Factory.createIssueQueryServiceFacade().queryIssues(queryText, type, ignoreKeyword)
+        val result = queryService.queryIssues(queryText, type, ignoreKeyword)
         return result.fold(
             onSuccess = { entity ->
                 Result.success(entity._searchedEntityToModel(ignoreKeyword))

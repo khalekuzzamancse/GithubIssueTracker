@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")//build-logic as a Composite Build
     repositories {
         google {
             content {
@@ -19,6 +20,12 @@ dependencyResolutionManagement {
         maven(url = "https://jitpack.io")
     }
 }
+/*
+ * Type-Safe Project Accessors, a feature introduced in Gradle 7.0 that allows you to reference project dependencies
+ * in a type-safe manner without relying on string-based project paths like project(":x") as implement(projects.x)
+ */
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 val applicationsModules= listOf(":application")
 val commonModules= listOf(
     ":common",":common:misc",":common:ui"
@@ -32,7 +39,7 @@ val featureModules= listOf(
     ":feature:navigation"
 )
 
-rootProject.name = "GitHub Issue Tracker"
+rootProject.name = "GitHub_Issue_Tracker"
 include(applicationsModules+commonModules+featureModules)
 include(":core:network")
 

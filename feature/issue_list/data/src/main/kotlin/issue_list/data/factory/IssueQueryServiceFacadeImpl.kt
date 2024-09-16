@@ -1,3 +1,4 @@
+@file:Suppress("FunctionName")
 package issue_list.data.factory
 
 import core.network.component.ApiServiceClient
@@ -28,21 +29,23 @@ internal class IssueQueryServiceFacadeImpl(
 ) : IssueQueryServiceFacade {
 
     override suspend fun queryIssues(queryText: String, type: QueryType, ignoreKeyword: String): Result<SearchedIssueEntity> {
-        val result = apiClient.retrieveJsonData(Factory.buildIssueSearchURL(queryText, type))
+        val result = apiClient.retrieveJsonData(IssueListDataFactory.buildIssueSearchURL(queryText, type))
 
         return result.fold(
             onSuccess = { json ->
                 val searchResult = jsonParser.parse(json, SearchedIssueEntity.serializer())
-                searchResult
+                searchResult//Exception Related to parsing will propagate up
             },
             onFailure = { ex ->
-                Result.failure(
-                    Throwable(
-                        message = "Unable to query issues at: ${this.javaClass.name}",
-                        cause = ex
-                    )
-                )
+                //Exception related to retrieving
+                Result.failure(ex._createError())
             }
         )
     }
+
+    private fun Throwable._createError() = Throwable(
+        message = this.message ?: "Unable to retrieve issue list",
+        cause = this.cause
+            ?: Throwable("I'm ${this@IssueQueryServiceFacadeImpl.javaClass.name}  failed at network layer\n${this.printStackTrace()}")
+    )
 }

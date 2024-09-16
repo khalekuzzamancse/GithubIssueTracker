@@ -4,6 +4,8 @@ package issue_list.data.factory
 
 import core.network.factory.NetworkFactory
 import issue_list.data.data_source.IssueQueryServiceFacade
+import issue_list.data.repository.IssueListRepositoryImpl
+import issue_list.domain.repository.IssueListRepository
 import issue_list.domain.repository.QueryType
 
 /**
@@ -15,19 +17,27 @@ import issue_list.domain.repository.QueryType
  * - Abstracts away implementation details, ensuring a consistent and simplified interface for clients.
  */
 
-internal object Factory {
-    const val ISSUE_LIST_API = "https://api.github.com/repos/flutter/flutter/issues"
+object IssueListDataFactory {
+    private const val ISSUE_LIST_API = "https://api.github.com/repos/flutter/flutter/issues"
 
 
-    fun createIssueServiceFacade() = IssueServiceFacadeImpl(
-        apiClient = NetworkFactory.createAPIServiceClient(),
-        jsonParser = NetworkFactory.createJsonParser()
+    fun createIssueListRepository(): IssueListRepository = IssueListRepositoryImpl(
+        issueListService = createIssueServiceFacade(),
+        queryService = createIssueQueryServiceFacade()
     )
 
-    fun createIssueQueryServiceFacade(): IssueQueryServiceFacade = IssueQueryServiceFacadeImpl(
+
+    private fun createIssueServiceFacade() = IssueServiceFacadeImpl(
         apiClient = NetworkFactory.createAPIServiceClient(),
-        jsonParser = NetworkFactory.createJsonParser()
+        jsonParser = NetworkFactory.createJsonParser(),
+        url = ISSUE_LIST_API
     )
+
+    private fun createIssueQueryServiceFacade(): IssueQueryServiceFacade =
+        IssueQueryServiceFacadeImpl(
+            apiClient = NetworkFactory.createAPIServiceClient(),
+            jsonParser = NetworkFactory.createJsonParser()
+        )
 
     /**
      * Builds a URL for querying issues based on the provided query text and query type.
@@ -42,4 +52,5 @@ internal object Factory {
             else -> "https://api.github.com/search/issues?q=xyz+repo:flutter/flutter"
         }
     }
+
 }

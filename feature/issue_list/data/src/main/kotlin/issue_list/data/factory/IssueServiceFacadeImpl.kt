@@ -1,3 +1,4 @@
+@file:Suppress("FunctionName")
 package issue_list.data.factory
 
 import core.network.component.ApiServiceClient
@@ -18,26 +19,26 @@ import kotlinx.serialization.builtins.ListSerializer
  */
 internal class IssueServiceFacadeImpl(
     private val apiClient: ApiServiceClient,
-    private val jsonParser: JsonParser
+    private val jsonParser: JsonParser,
+    private val url:String
 ) : IssueServiceFacade {
 
     override suspend fun retrieveIssueList(): Result<List<IssueEntity>> {
-        val url = Factory.ISSUE_LIST_API
         val apiResult = apiClient.retrieveJsonData(url)
 
         return apiResult.fold(
             onSuccess = { json ->
                 val issueListResult = jsonParser.parse(json, ListSerializer(IssueEntity.serializer()))
-                issueListResult
+                issueListResult//Exception Related to parsing will propagate up
             },
             onFailure = { ex ->
-                Result.failure(
-                    Throwable(
-                        message = "Unable to retrieve issue list at:${this.javaClass.name} ",
-                        cause = ex
-                    )
-                )
+                Result.failure(ex._createError()) //Exception related to retrieving
             }
         )
     }
+    private fun Throwable._createError() = Throwable(
+        message = this.message ?: "Unable to retrieve issue list",
+        cause = this.cause
+            ?: Throwable("I'm ${this@IssueServiceFacadeImpl.javaClass.name}  failed at network layer\n${this.printStackTrace()}")
+    )
 }

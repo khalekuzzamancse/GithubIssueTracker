@@ -5,7 +5,8 @@
 ### `:application`
 - This module represents the conventional `:app` module
 - It contains the `MainActivity`, `Manifest`, and other core app configurations
-
+### `:build-logic`
+- Contains the `Convention Plugin`
 ### `:core`
 - This module contains submodules like `:network` that handle data fetching via `REST APIs`
 - Feature-specific business logic modules, such as the `:data` module, will use it to fetch data
