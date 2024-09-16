@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import common.ui.SnackBarMessage
 import feature_navigation.component.NavigationLayoutDecorator
 import feature_navigation.component.RootNavHost
 
@@ -15,6 +16,7 @@ import feature_navigation.component.RootNavHost
 @Composable
  fun Navigation(
     modifier: Modifier = Modifier,
+    onScreenMessageUpdate:(SnackBarMessage)->Unit,
 ) {
     val viewModel = viewModel<NavigationViewModel>()
     val navigationManager = viewModel.navigationManager
@@ -35,9 +37,8 @@ import feature_navigation.component.RootNavHost
         content = {
             RootNavHost(
                 navController = navHostController,
-                onNavigationRequest = { route ->
-                    navigationManager.navigateTo(route, navHostController)
-                }
+                onNavigationRequest = { route -> navigationManager.navigateTo(route, navHostController) },
+                onScreenMessageUpdate = onScreenMessageUpdate
             )
         }
     )

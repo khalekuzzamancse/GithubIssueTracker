@@ -1,8 +1,7 @@
-@file:Suppress("FunctionName")
+@file:Suppress("FunctionName", "VariableName")
 
 package feature_issuedetails.details.route
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import common.ui.LabelViewData
 import common.ui.SnackBarMessage
@@ -34,39 +33,30 @@ internal class IssueDetailsViewModel : ViewModel(), IssueDetailsViewController {
     /**Should be used by Screen/Route component that is not making internal*/
     override val screenMessage = _screenMessage.asStateFlow()
 
+
     override suspend fun onDetailsRequest(issueNumber: String) {
-        val response = DIFactory.createIssueDetailsRepository().fetchDetails(issueNumber)
-        if (response.isSuccess) {
-            updateState(response)
-            fetchComments(issueNumber)
-        } else {
-            val exception = response.exceptionOrNull() ?: getDefaultException()
-            _updateScreenMessage(
-                SnackBarMessage(
-                    message = exception.message.toString(),
-                    details = exception.cause?.message
-                )
-            )
-        }
+        val result = DIFactory.createIssueDetailsRepository().fetchDetails(issueNumber)
+        if (result.isSuccess) {
+            _updateDetails(result)
+            _updateComments(issueNumber)
+        } else
+            _updateMessageOnException(result.exceptionOrNull())
+
+
     }
 
 
     override fun onScreenMessageDismissRequest() {
-        _updateScreenMessage(null)
+        _screenMessage.update { null }
     }
 
-    private suspend fun fetchComments(issueNumber: String) {
+
+    private suspend fun _updateComments(issueNumber: String) {
         val result = DIFactory.createIssueDetailsRepository().fetchComments(issueNumber)
         if (result.isSuccess) {
-            val comments=result
-                .getOrNull()
-                ?.map { comment -> toCommentViewData(comment) }
-                ?: emptyList()
-            Log.d("CommentFected",comments.toString())
             _details.update {
                 it?.copy(
-                    comments = comments
-                )
+                    comments = result.getOrNull()?.map { it._toCommentViewData() } ?: emptyList())
             }
             _screenMessage.update {
                 SnackBarMessage(
@@ -74,20 +64,13 @@ internal class IssueDetailsViewModel : ViewModel(), IssueDetailsViewController {
                     type = SnackBarMessageType.Success
                 )
             }
-        }
-        else{
-            val exception = result.exceptionOrNull() ?: getDefaultException()
-            _updateScreenMessage(
-                SnackBarMessage(
-                    message = exception.message.toString(),
-                    details = exception.cause?.message
-                )
-            )
-        }
+        } else
+            _updateMessageOnException(result.exceptionOrNull())
+
     }
 
     /** taking in wrapping in Result so that exception can handle by this method*/
-    private fun updateState(result: Result<IssueDetailsModel>) {
+    private fun _updateDetails(result: Result<IssueDetailsModel>) {
         try {
             val model = result.getOrThrow()
             _details.update {
@@ -96,50 +79,51 @@ internal class IssueDetailsViewModel : ViewModel(), IssueDetailsViewController {
                     issueNum = model.num,
                     creatorName = model.creator.username,
                     creatorAvatarLink = model.creator.avatarLink,
-                    labels = model.labels.map(::toLabelViewData),
+                    labels = model.labels.map{it._toLabelViewData()},
                     description = model.body,
                     status = model.status,
-                    assignees = model.assigneeModel.map(::toAssigneeViewData),
+                    assignees = model.assigneeModel.map { it._toAssigneeViewData() }
                 )
             }
         } catch (e: Exception) {
-            _updateScreenMessage(
-                SnackBarMessage(
-                    message = "Failed to fetch details",
-                    details = e.stackTrace.toString()
-                )
+            _updateMessageOnException(e)
+        }
+    }
+
+
+    private fun _updateMessageOnException(exception: Throwable?) {
+        val ex = exception ?: Throwable(
+            message = "Error...",
+            cause = Throwable("Unknown reason at ${this.javaClass.name}")
+        )
+        _screenMessage.update {
+            SnackBarMessage(
+                message = ex.message.toString(),
+                details = ex.cause?.message
             )
         }
     }
 
 
-    //TODO:Helper method section-------------
-    private fun toLabelViewData(model: LabelModel) = LabelViewData(
-        name = model.name,
-        hexCode = model.hexCode,
-        description = model.description
-    )
-
-    private fun toAssigneeViewData(model: UserShortInfoModel) = AssigneeViewData(
-        username = model.username, avatarLink = model.avatarLink
-    )
-
-    private fun toCommentViewData(model: CommentModel) = CommentViewData(
-        creatorUsername = model.user.username,
-        creatorAvatarLink = model.user.avatarLink,
-        createdAt = model.createdAt,
-        updatedAt = model.updatedAt,
-        body = model.body
-    )
-
-    private fun _updateScreenMessage(msg: SnackBarMessage?) {
-            _screenMessage.update { msg }
-
-    }
-
-    private fun getDefaultException() =
-        Throwable(
-            message = "Failed...",
-            cause = Throwable("Unknown reason at ${this.javaClass.name}")
-        )
 }
+
+
+//TODO:Helper method section-------------  TODO:Helper method section-------------
+
+private fun LabelModel._toLabelViewData() = LabelViewData(
+    name = this.name,
+    hexCode = this.hexCode,
+    description = this.description
+)
+
+private fun UserShortInfoModel._toAssigneeViewData() = AssigneeViewData(
+    username = this.username, avatarLink = this.avatarLink
+)
+
+private fun CommentModel._toCommentViewData() = CommentViewData(
+    creatorUsername = this.user.username,
+    creatorAvatarLink = this.user.avatarLink,
+    createdAt = this.createdAt,
+    updatedAt = this.updatedAt,
+    body = this.body
+)

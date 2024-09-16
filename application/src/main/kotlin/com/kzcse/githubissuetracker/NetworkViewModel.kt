@@ -5,9 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import common.ui.SnackBarMessage
 import common.ui.SnackBarMessageType
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -23,7 +20,7 @@ class NetworkViewModel(context: Context) : ViewModel() {
         viewModelScope.launch {
             networkMonitor.isConnected.collect { connected ->
                 if (!connected) {
-                    updateMessage(
+                    onScreenMessageUpdate(
                         SnackBarMessage(
                             message = context.getString(R.string.internet_connection_has_gone),
                             type = SnackBarMessageType.Error,
@@ -38,10 +35,9 @@ class NetworkViewModel(context: Context) : ViewModel() {
         }
     }
 
-    private fun updateMessage(message: SnackBarMessage?) {
-        CoroutineScope(Dispatchers.Default).launch {
+     fun onScreenMessageUpdate(message: SnackBarMessage?) {
             _message.update { message }
-        }
+
     }
     fun onScreenMessageDismissRequest(){
         _message.update { null }

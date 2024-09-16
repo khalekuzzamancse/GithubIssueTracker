@@ -11,6 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import common.ui.SnackBarMessage
 import feature_issuedetails.details.route.IssueDetailsRoute
 import feature_lissuelist.issue_list.route.IssuesListRoute
 import feature_search.route.IssuesSearchRoute
@@ -21,6 +22,7 @@ internal fun RootNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     onNavigationRequest:(Route)->Unit,
+    onScreenMessageUpdate:(SnackBarMessage)->Unit,
 ) {
 
     NavHost(
@@ -30,11 +32,12 @@ internal fun RootNavHost(
     ) {
         composable<Route.IssueList> {
             IssuesListRoute(
-                onDetailsRequest = { issueNum ->
-                    onNavigationRequest(Route.IssueDetails(issueNum))
-                },
-                onUserProfileRequest = {
-                }
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .fillMaxWidth(),
+                onDetailsRequest = { issueNum -> onNavigationRequest(Route.IssueDetails(issueNum)) },
+                onUserProfileRequest = {},
+                onScreenMessageUpdate = onScreenMessageUpdate
             )
         }
         composable<Route.IssueDetails> {
@@ -42,21 +45,17 @@ internal fun RootNavHost(
             IssueDetailsRoute(
                 issueNum = issueNumber,
                 onUserProfileRequest = {},
+                onScreenMessageUpdate = onScreenMessageUpdate,
                 modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth()
-                    .verticalScroll(
-                        rememberScrollState()
-                    ),
+                    .padding(start = 16.dp)
+                    .fillMaxWidth(),
             )
         }
         composable<Route.Search> {
             IssuesSearchRoute(
-                onDetailsRequest = {issueNum->
-                    onNavigationRequest(Route.IssueDetails(issueNum))
-                },
-                onUserProfileRequest = {
-                }
+                onDetailsRequest = {issueNum-> onNavigationRequest(Route.IssueDetails(issueNum)) },
+                onUserProfileRequest = {},
+                onScreenMessageUpdate = onScreenMessageUpdate
             )
 
         }

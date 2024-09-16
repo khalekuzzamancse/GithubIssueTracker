@@ -84,9 +84,6 @@ interface  IssueListViewController {
      * - public  because other feature module such as feature:search can be use it*/
     val screenMessage: StateFlow<SnackBarMessage?>
 
-    /**request for issue details ,following unidirectional data flow so issues details will be notified via [issues]*/
-     suspend fun onIssueListRequest()
-
     /** - public  because other feature module such as feature:search can be use it
      * @param ignoreKeyword the keyword that should ignore
      **/

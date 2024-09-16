@@ -3,6 +3,7 @@
 package feature_lissuelist.issue_list.route
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import common.ui.LabelViewData
 import common.ui.SnackBarMessage
 import feature_lissuelist.issue_list.components.IssueListViewController
@@ -11,9 +12,6 @@ import issue_list.di_container.DIFactory
 import issue_list.domain.model.IssueModel
 import issue_list.domain.model.LabelModel
 import issue_list.domain.repository.QueryType
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -22,6 +20,7 @@ import kotlinx.coroutines.launch
 class IssueListViewModel : ViewModel(), IssueListViewController {
     private val _issues = MutableStateFlow<List<IssueViewData>?>(null)
     override val issues = _issues.asStateFlow()
+
     private val _isLoading = MutableStateFlow(false)
     override val isLoading = _isLoading.asStateFlow()
 
@@ -31,22 +30,13 @@ class IssueListViewModel : ViewModel(), IssueListViewController {
     /**Should be used by Screen/Route component that is not making internal*/
     override val screenMessage = _screenMessage.asStateFlow()
 
-
-    override suspend fun onIssueListRequest() {
-        _isLoading.update { true }
-        val response = DIFactory.createIssueListRepository().fetchIssues()
-        if (response.isSuccess) {
-            updateState(response)
-        } else {
-            val exception = response.exceptionOrNull() ?: getDefaultException()
-            _screenMessage.update {
-                SnackBarMessage(
-                    message = exception.message.toString(),
-                    details = exception.cause?.message
-                )
-            }
+    init {
+        //On the first time it fetch the data
+        viewModelScope.launch {
+            _isLoading.update { true }
+            _fetchIssues()
+            _isLoading.update { false }
         }
-        _isLoading.update { false }
     }
 
     /** public so that outer module can use it to build search feature
@@ -54,68 +44,77 @@ class IssueListViewModel : ViewModel(), IssueListViewController {
      **/
     override suspend fun onIssueSearch(query: String, type: QueryType, ignoreKeyword: String) {
         _isLoading.update { true }
-        val response = DIFactory.createIssueListRepository().fetchIssues(query, type, ignoreKeyword)
-        if (response.isSuccess) {
-            updateState(response)
-        } else {
-            val exception = response.exceptionOrNull() ?: getDefaultException()
-            _screenMessage.update {
-                SnackBarMessage(
-                    message = exception.message.toString(),
-                    details = exception.cause?.message
-                )
-            }
-        }
+        _queryIssues(query, type, ignoreKeyword)
         _isLoading.update { false }
     }
+
+
     override fun onScreenMessageDismissRequest() {
-       _screenMessage.update { null }
+        _screenMessage.update { null }
     }
 
 
+    private suspend fun _fetchIssues() {
+        val result = DIFactory.createIssueListRepository().fetchIssues()
+        if (result.isSuccess)
+            _updateIssueList(result)
+        else
+            _updateMessageOnException(result.exceptionOrNull())
+    }
+
+    private suspend fun _queryIssues(query: String, type: QueryType, ignoreKeyword: String) {
+        val result = DIFactory.createIssueListRepository().queryIssues(query, type, ignoreKeyword)
+        if (result.isSuccess) {
+            _updateIssueList(result)
+        } else {
+            _updateMessageOnException(result.exceptionOrNull())
+        }
+    }
 
     /** taking in wrapping in Result so that exception can handle by this method*/
-    private fun updateState(result: Result<List<IssueModel>>) {
+    private fun _updateIssueList(result: Result<List<IssueModel>>) {
         try {
             _issues.update {
-                result.getOrThrow().map(::toIssueViewData)
+                result
+                    .getOrThrow()
+                    .map { it._toIssueViewData() }
             }
 
         } catch (e: Exception) {
-            _screenMessage.update {
-                (
-                        SnackBarMessage(
-                            message = "Failed to fetch details",
-                            details = e.stackTrace.toString()
-                        )
-                        )
-            }
+            _updateMessageOnException(e)
         }
     }
 
-
-
-
-    //TODO:Helper method section-------------
-    private fun toLabelViewData(model: LabelModel) = LabelViewData(
-        name = model.name,
-        hexCode = model.hexCode,
-        description = model.description
-    )
-
-    private fun toIssueViewData(model: IssueModel) = IssueViewData(
-        title = model.title,
-        id = model.id,
-        creatorName = model.creatorName,
-        creatorAvatarLink = model.userAvatarLink,
-        createdTime = model.createdTime,
-        labels = model.labels.map(::toLabelViewData)
-    )
-
-    private fun getDefaultException() =
-        Throwable(
-            message = "Failed...",
+    private fun _updateMessageOnException(exception: Throwable?) {
+        val ex = exception ?: Throwable(
+            message = "Error...",
             cause = Throwable("Unknown reason at ${this.javaClass.name}")
         )
+        _screenMessage.update {
+            SnackBarMessage(
+                message = ex.message.toString(),
+                details = ex.cause?.message
+            )
+        }
+    }
 
 }
+
+
+
+
+//TODO:Helper method section------------- TODO:Helper method section-------------
+private fun IssueModel._toIssueViewData() = IssueViewData(
+    title = this.title,
+    id = this.id,
+    creatorName = this.creatorName,
+    creatorAvatarLink = this.userAvatarLink,
+    createdTime = this.createdTime,
+    labels = this.labels.map { it._toLabelViewData() }
+)
+
+private fun LabelModel._toLabelViewData() = LabelViewData(
+    name = this.name,
+    hexCode = this.hexCode,
+    description = this.description
+)
