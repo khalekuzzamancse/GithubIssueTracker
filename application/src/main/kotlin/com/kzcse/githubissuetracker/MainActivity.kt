@@ -20,22 +20,26 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val context = LocalContext.current
-            val networkMonitor = viewModel { NetworkViewModel(context) }
+            val viewmodel = viewModel { NetworkViewModel(context) }
 
 
             Theme {
                 Scaffold(
                     snackbarHost = {
-                        networkMonitor.screenMessage.collectAsState().value?.let {
+                        viewmodel.screenMessage.collectAsState().value?.let {
                             SnackBar(
                                 message = it,
-                                onDismissRequest =networkMonitor::onScreenMessageDismissRequest
+                                onDismissRequest =viewmodel::onScreenMessageDismissRequest
                             )
                         }
 
                     }
                 ) { innerPadding ->
-                    Navigation(modifier = Modifier.padding(innerPadding))
+                    Navigation(
+                        modifier = Modifier.padding(innerPadding),
+                        onScreenMessageUpdate = viewmodel::onScreenMessageUpdate
+
+                    )
                 }
 
             }

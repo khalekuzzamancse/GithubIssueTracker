@@ -1,8 +1,10 @@
+@file:Suppress("FunctionName")
+
 package issue_list.data.repository
 
-import issue_list.data.data_source.APIFacade
 import issue_list.data.entity.IssueEntity
 import issue_list.data.entity.SearchedIssueEntity
+import issue_list.data.factory.Factory
 import issue_list.data.utils.EntityToModel
 import issue_list.domain.model.IssueModel
 import issue_list.domain.repository.IssueListRepository
@@ -13,14 +15,19 @@ import issue_list.domain.repository.QueryType
  * - To avoid tight coupling UI layer should not use it directly,
  * instead UI layer should use it via di_container factory
  */
-@Suppress("Unused")
 class IssueListRepositoryImpl : IssueListRepository {
     override suspend fun fetchIssues(): Result<List<IssueModel>> {
-        val result = APIFacade().requestIssueList()
-        return if (result.isSuccess) {
-            toModel(result)
-        } else
-            Result.failure(createFailureException(result.exceptionOrNull()))
+        val result = Factory.createIssueServiceFacade().retrieveIssueList()
+        return result.fold(
+            onSuccess = { entities ->
+
+                Result.success(entities._toModel())
+            },
+            onFailure = { exception ->
+                Result.failure(exception)
+
+            }
+        )
     }
 
     /**
@@ -31,28 +38,28 @@ class IssueListRepositoryImpl : IssueListRepository {
      * if need to ignore from other property such as label, description, comment then modify it
      */
 
-    override suspend fun fetchIssues(
+    override suspend fun queryIssues(
         queryText: String,
         type: QueryType,
         ignoreKeyword: String
     ): Result<List<IssueModel>> {
-        val result = APIFacade().requestIssueList(queryText, type)
-        return if (result.isSuccess) {
-            searchedEntityToModel(result, ignoreKeyword)
-        } else
-            Result.failure(createFailureException(result.exceptionOrNull()))
+        val result =
+            Factory.createIssueQueryServiceFacade().queryIssues(queryText, type, ignoreKeyword)
+        return result.fold(
+            onSuccess = { entity ->
+                Result.success(entity._searchedEntityToModel(ignoreKeyword))
+            },
+            onFailure = { exception ->
+                Result.failure(exception)
+
+            }
+        )
     }
 
     /** convert entity to model*/
-    private fun toModel(result: Result<List<IssueEntity>>): Result<List<IssueModel>> {
-        return try {
-            Result.success(result
-                .getOrThrow()
-                .map { entity -> EntityToModel().toEntity(entity) })
+    private fun List<IssueEntity>._toModel(): List<IssueModel> {
+        return this.map { entity -> EntityToModel().toEntity(entity) }
 
-        } catch (ex: Exception) {
-            Result.failure(createFailureException(ex))
-        }
     }
 
     /** - Convert entity to model
@@ -60,30 +67,17 @@ class IssueListRepositoryImpl : IssueListRepository {
      * - Right now it ignore keyword only from the title, if need to ignore from other property
      * such as label, description, comment then modify it
      * */
-    private fun searchedEntityToModel(
-        result: Result<SearchedIssueEntity>,
+    private fun SearchedIssueEntity._searchedEntityToModel(
         ignoreKeyword: String
-    ): Result<List<IssueModel>> {
-        return try {
-            var entities = result
-                .getOrThrow()
-                .items
-                .map { entity -> EntityToModel().toEntity(entity) }
-            if (ignoreKeyword.isNotEmpty())
-            //TODO: ignore the other property  also if needed
-                entities = entities.filter { entity -> !entity.title.contains(ignoreKeyword) }
-            Result.success(entities)
-        } catch (ex: Exception) {
-            Result.failure(createFailureException(ex))
-        }
+    ): List<IssueModel> {
+        var entities = this
+            .items
+            .map { EntityToModel().toEntity(it) }
+        if (ignoreKeyword.isNotEmpty())
+        //TODO: ignore the other property  also if needed
+            entities = entities.filter { !it.title.contains(ignoreKeyword) }
+        return entities
     }
 
 
-    /** Create  meaning error message on exception rise*/
-    private fun createFailureException(exception: Throwable?): Throwable {
-        val reason:String = exception?.cause?.stackTraceToString() ?:"Unknown reason at ${this.javaClass.name}"
-        return Throwable(
-            message = "Failed to fetch",
-            cause = Throwable(reason))
-    }
 }

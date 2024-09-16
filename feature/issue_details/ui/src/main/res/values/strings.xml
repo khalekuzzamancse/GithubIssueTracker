@@ -8,4 +8,5 @@
     <string name="assignees">Assignees</string>
     <string name="description">Description</string>
     <string name="comments">Comments</string>
+    <string name="issue_details">Issue Details</string>
 </resources>

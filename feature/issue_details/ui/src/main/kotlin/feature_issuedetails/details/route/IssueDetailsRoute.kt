@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import common.ui.HorizontalGap_8Dp
 import common.ui.LabelViewData
-import common.ui.SnackBar
+import common.ui.SimpleTopBar
 import common.ui.SnackBarMessage
 import common.ui.TextWithLessOpacity
 import common.ui.UserShortInfoView
@@ -54,24 +56,26 @@ fun IssueDetailsRoute(
     modifier: Modifier = Modifier,
     issueNum: String,
     onUserProfileRequest: (username: String) -> Unit,
+    onScreenMessageUpdate:(SnackBarMessage)->Unit,
 ) {
-    val viewModel = remember { IssueDetailsViewModel() }
+    val viewmodel = remember { IssueDetailsViewModel() }
+    val screenMessage=viewmodel.screenMessage.collectAsState().value
+    LaunchedEffect(screenMessage) {
+        if (screenMessage!=null)
+            onScreenMessageUpdate(screenMessage)
+    }
     Scaffold(
-        snackbarHost = {
-            viewModel.screenMessage.collectAsState().value?.let {
-                SnackBar(
-                    message = it,
-                    onDismissRequest = {
-                        viewModel.onScreenMessageDismissRequest()
-                    }
-                )
-            }
-
+        modifier = modifier,
+        topBar = {
+            SimpleTopBar(
+                modifier=Modifier,
+                title = stringResource(R.string.issue_details)
+            )
         }
     ) { innerPadding ->
         IssueDetailsView(
-            modifier = modifier.padding(innerPadding),
-            controller = viewModel,
+            modifier = Modifier.padding(innerPadding).verticalScroll(rememberScrollState()),
+            controller = viewmodel,
             issueNum = issueNum,
             onUserProfileRequest = onUserProfileRequest
         )
@@ -79,6 +83,8 @@ fun IssueDetailsRoute(
     }
 
 }
+
+
 
 /**
  * - Represent the Issue details

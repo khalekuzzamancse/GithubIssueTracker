@@ -63,7 +63,7 @@ class IssueListViewModel : ViewModel(), IssueListViewController {
     }
 
     private suspend fun _queryIssues(query: String, type: QueryType, ignoreKeyword: String) {
-        val result = DIFactory.createIssueListRepository().fetchIssues(query, type, ignoreKeyword)
+        val result = DIFactory.createIssueListRepository().queryIssues(query, type, ignoreKeyword)
         if (result.isSuccess) {
             _updateIssueList(result)
         } else {

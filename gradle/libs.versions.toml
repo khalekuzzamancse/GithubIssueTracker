@@ -1,4 +1,5 @@
 [versions]
+adaptive = "1.1.0-alpha02"
 agp = "8.6.0-alpha02"
 coilCompose = "2.7.0"
 composeMarkdown = "0.5.4"
@@ -15,13 +16,18 @@ lifecycleViewmodelCompose = "2.8.5"
 material = "1.12.0"
 coil_version="2.7.0"
 ktor = "2.3.7"
+material3AdaptiveNavigationSuite = "1.0.0-alpha07"
 material3WindowSizeClassMultiplatform = "0.3.1"
 navigationCompose = "2.8.0"
 uiTextGoogleFonts = "1.7.1"
 [libraries]
+androidx-adaptive = { module = "androidx.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
+androidx-adaptive-layout = { module = "androidx.compose.material3.adaptive:adaptive-layout", version.ref = "adaptive" }
+androidx-adaptive-navigation = { module = "androidx.compose.material3.adaptive:adaptive-navigation", version.ref = "adaptive" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 # For image loading
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
+androidx-material3-adaptive-navigation-suite = { module = "androidx.compose.material3:material3-adaptive-navigation-suite", version.ref = "material3AdaptiveNavigationSuite" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 coil-compose-v270 = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 compose-markdown = { module = "com.github.jeziellago:compose-markdown", version.ref = "composeMarkdown" }

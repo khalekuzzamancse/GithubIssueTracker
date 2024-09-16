@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import common.ui.SnackBarMessage
 import common.ui.VerticalSpace_8Dp
 import feature_lissuelist.factory.IssueListFactory
 import feature_lissuelist.issue_list.components.IssueListViewController
@@ -25,14 +26,22 @@ import feature_lissuelist.issue_list.components.IssuesListView
 import feature_search.components.SearchView
 import issue_list.domain.repository.QueryType
 
-
+/**
+ * @param onScreenMessageUpdate propagate up to screen message to the maintain single source for snackBar
+ */
 @Composable
 fun IssuesSearchRoute(
     modifier: Modifier = Modifier,
     onDetailsRequest: (id: String) -> Unit,
     onUserProfileRequest: (userName: String) -> Unit,
+    onScreenMessageUpdate:(SnackBarMessage)->Unit,
 ) {
-    val controller = IssueListFactory.createIssueListController()
+    val viewmodel = IssueListFactory.createIssueListController()
+    val screenMessage=viewmodel.screenMessage.collectAsState().value
+    LaunchedEffect(screenMessage) {
+        if (screenMessage!=null)
+            onScreenMessageUpdate(screenMessage)
+    }
 
     /**Small state it's fine to preserve here instead of hoisting to reduce burden of the parent function or ViewModel.*/
     var queryText by rememberSaveable { mutableStateOf("") }
@@ -59,7 +68,7 @@ fun IssuesSearchRoute(
         VerticalSpace_8Dp()
         _IssuesListSearchRoute(
             modifier = modifier,
-            controller = controller,
+            controller = viewmodel,
             query = queryText,
             onDetailsRequest = onDetailsRequest,
             ignoreKeyword = ignoreKeyword,

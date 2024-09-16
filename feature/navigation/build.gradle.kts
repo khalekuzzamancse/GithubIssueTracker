@@ -49,14 +49,16 @@ dependencies {
     implementation(project(":feature:issue_list:ui"))
     implementation(project(":feature:issue_details:ui"))
     implementation(project(":feature:search"))
+    implementation(project(":common:ui"))
     implementation(libs.ktor.serialization.kotlinx.json) //For Json serialization
     implementation(libs.androidx.navigation.compose)//For navigation
     implementation(libs.windowSize)//window size
     implementation(libs.androidx.lifecycle.viewmodel.compose)//Viewmodel
 
-    implementation("androidx.compose.material3.adaptive:adaptive:1.1.0-alpha02")
-    implementation("androidx.compose.material3.adaptive:adaptive-layout:1.1.0-alpha02")
-    implementation("androidx.compose.material3.adaptive:adaptive-navigation:1.1.0-alpha02")
-    implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.0.0-alpha07")
+    //Libraries for adaptive UI
+    implementation(libs.androidx.adaptive)
+    implementation(libs.androidx.adaptive.layout)
+    implementation(libs.androidx.adaptive.navigation)
+    implementation(libs.androidx.material3.adaptive.navigation.suite)
 
 }
